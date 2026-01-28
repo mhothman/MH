@@ -162,29 +162,33 @@ export const TimeTracker = ({ taskId, taskTitle, onTimeLogged, canTrackTime = tr
 export const GlobalTimerIndicator = () => {
   const [activeTimer, setActiveTimer] = useState(null);
   const [elapsed, setElapsed] = useState(0);
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  
+  // Check authentication status synchronously on initial render
+  const hasToken = () => Boolean(localStorage.getItem('proflow_token'));
 
   useEffect(() => {
-    // Check if user is authenticated before polling
-    const token = localStorage.getItem('proflow_token');
-    if (!token) {
-      setIsAuthenticated(false);
-      setActiveTimer(null);
+    // Don't start polling if no token
+    if (!hasToken()) {
       return;
     }
-    setIsAuthenticated(true);
+
+    let isMounted = true;
+    let interval;
 
     const checkTimer = async () => {
-      // Double-check token exists before making request
-      const currentToken = localStorage.getItem('proflow_token');
-      if (!currentToken) {
-        setIsAuthenticated(false);
-        setActiveTimer(null);
+      // Check token before each request
+      if (!hasToken()) {
+        if (isMounted) {
+          setActiveTimer(null);
+        }
+        if (interval) clearInterval(interval);
         return;
       }
 
       try {
         const response = await getActiveTimer();
+        if (!isMounted) return;
+        
         // API returns {active: boolean, timer: object|null}
         if (response && response.active && response.timer) {
           setActiveTimer(response.timer);
@@ -192,10 +196,12 @@ export const GlobalTimerIndicator = () => {
           setActiveTimer(null);
         }
       } catch (error) {
+        if (!isMounted) return;
+        
         // Check if it's a 401 unauthorized error - stop polling
         if (error.status === 401) {
-          setIsAuthenticated(false);
           setActiveTimer(null);
+          if (interval) clearInterval(interval);
           return;
         }
         console.error("Failed to check timer:", error);
@@ -204,14 +210,16 @@ export const GlobalTimerIndicator = () => {
     };
 
     checkTimer();
-    const interval = setInterval(checkTimer, 30000); // Check every 30 seconds
+    interval = setInterval(checkTimer, 30000); // Check every 30 seconds
 
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      if (interval) clearInterval(interval);
+    };
   }, []);
 
   useEffect(() => {
     if (!activeTimer || !activeTimer.started_at) {
-      setElapsed(0);
       return;
     }
 
@@ -219,7 +227,6 @@ export const GlobalTimerIndicator = () => {
     
     // Check if date is valid
     if (isNaN(startedAt.getTime())) {
-      setElapsed(0);
       return;
     }
     
