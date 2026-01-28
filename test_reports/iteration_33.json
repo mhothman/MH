@@ -1,0 +1,69 @@
+{
+  "summary": "Comprehensive testing of Organization-Level Task Approval Workflows feature. All backend API tests pass (27/27). Frontend UI testing confirms workflow management in System Settings and read-only view in Project Settings are working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_org_workflows.py",
+    "/app/test_reports/pytest/pytest_org_workflows.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Fixed route ordering bug in workflow_router.py - /pending route was being matched by /{workflow_id} pattern. Moved /pending before dynamic routes.",
+    "Added missing workflow/approval permissions to frontend Permission enum in auth.js"
+  ],
+  "updated_files": [
+    "/app/backend/routers/workflow_router.py",
+    "/app/frontend/src/api/auth.js",
+    "/app/backend/tests/test_org_workflows.py"
+  ],
+  "success_rate": {
+    "backend": "100% (27/27 tests passed)",
+    "frontend": "100% (all UI flows working)"
+  },
+  "seed_data_creation": "Test workflows and tasks created during testing are cleaned up automatically",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Organization-level workflow feature is fully functional. Key test file: /app/backend/tests/test_org_workflows.py covers all CRUD operations, rule management, project assignment, workflow resolution, and approval flow. The frontend WorkflowSettings component is integrated into System Settings (SettingsPage.jsx) and ProjectWorkflowView shows read-only workflow info in project settings.",
+  "features_tested": {
+    "backend_api": [
+      "POST /api/workflows/org/{org_id} - Create workflow (global/selective)",
+      "GET /api/workflows/org/{org_id} - List org workflows",
+      "GET /api/workflows/{workflow_id} - Get workflow details",
+      "PUT /api/workflows/{workflow_id} - Update workflow",
+      "DELETE /api/workflows/{workflow_id} - Delete workflow",
+      "POST /api/workflows/{workflow_id}/rules - Create approval rule",
+      "GET /api/workflows/{workflow_id}/rules - List rules",
+      "PUT /api/workflows/rules/{rule_id} - Update rule",
+      "PUT /api/workflows/{workflow_id}/projects - Assign projects to selective workflow",
+      "GET /api/workflows/{workflow_id}/projects - Get assigned projects",
+      "GET /api/workflows/projects/{project_id}/applicable - Get applicable workflows (resolution logic)",
+      "GET /api/workflows/tasks/{task_id}/check-approval - Check if approval required",
+      "POST /api/workflows/tasks/{task_id}/request-approval - Request approval",
+      "GET /api/workflows/tasks/{task_id}/approval-summary - Get task approval summary",
+      "GET /api/workflows/pending - Get pending approvals",
+      "POST /api/workflows/approvals/{approval_id}/approve - Approve request",
+      "POST /api/workflows/approvals/{approval_id}/reject - Reject request"
+    ],
+    "frontend_ui": [
+      "WorkflowSettings in System Settings - Create/Edit/Delete workflows",
+      "Workflow scope selection (Global vs Selective)",
+      "Rule creation with status transitions",
+      "Project assignment to selective workflows",
+      "ProjectWorkflowView in Project Settings - Read-only view",
+      "Task status change with approval lock icon",
+      "Approval pending banner with Approve/Reject buttons",
+      "Task locking while approval pending"
+    ]
+  },
+  "workflow_resolution_logic": "Global workflows take priority over selective workflows. When checking for applicable workflow: 1) First check for active global workflow, 2) If none, check for selective workflow assigned to the project",
+  "mocked_apis": {
+    "ssl_service.py": "Certificate generation is simulated (placeholder logic)"
+  }
+}

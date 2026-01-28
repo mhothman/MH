@@ -1,0 +1,214 @@
+/* ProFlow - Project Management SaaS Styles */
+
+/* Base App Styles */
+.App {
+    min-height: 100vh;
+}
+
+/* Landing Page Hero */
+.hero-gradient {
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%);
+}
+
+.dark .hero-gradient {
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(217, 33%, 10%) 100%);
+}
+
+/* Feature Cards */
+.feature-card {
+    @apply bg-card border border-border rounded-lg p-6;
+    @apply hover:border-primary/30 transition-all duration-300;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Sidebar */
+.sidebar {
+    @apply fixed left-0 top-0 h-full w-64 bg-card border-r border-border;
+    @apply flex flex-col z-40;
+}
+
+.sidebar-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-md text-sm font-medium;
+    @apply text-muted-foreground hover:text-foreground hover:bg-accent;
+    @apply transition-colors duration-200;
+}
+
+.sidebar-link.active {
+    @apply text-foreground bg-accent;
+}
+
+/* Header */
+.app-header {
+    @apply fixed top-0 right-0 h-16 bg-card/80 backdrop-blur-xl border-b border-border;
+    @apply flex items-center justify-between px-6 z-30;
+    left: 256px;
+}
+
+/* Main Content */
+.main-content {
+    @apply ml-64 pt-16 min-h-screen bg-background;
+}
+
+/* Dashboard Cards */
+.stat-card {
+    @apply bg-card border border-border rounded-lg p-6;
+    @apply transition-all duration-200 hover:shadow-sm;
+}
+
+/* Project Card */
+.project-card {
+    @apply bg-card border border-border rounded-lg overflow-hidden;
+    @apply hover:border-primary/50 transition-all duration-200 cursor-pointer;
+}
+
+.project-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+}
+
+/* Task List */
+.task-item {
+    @apply flex items-center gap-3 p-3 rounded-md;
+    @apply hover:bg-accent transition-colors duration-150;
+    @apply cursor-pointer;
+}
+
+/* Kanban Board */
+.kanban-board {
+    @apply flex gap-4 overflow-x-auto pb-4;
+    min-height: calc(100vh - 200px);
+}
+
+.kanban-column {
+    @apply flex-shrink-0 w-80 bg-muted/30 rounded-lg;
+}
+
+.kanban-header {
+    @apply flex items-center justify-between px-4 py-3;
+    @apply border-b border-border;
+}
+
+.kanban-cards {
+    @apply p-2 space-y-2 min-h-[400px];
+}
+
+.kanban-card {
+    @apply bg-card border border-border rounded-md p-3;
+    @apply cursor-grab active:cursor-grabbing;
+    @apply hover:border-primary/50 transition-colors duration-200;
+}
+
+.kanban-card.dragging {
+    @apply opacity-50 shadow-lg;
+}
+
+/* Avatar */
+.avatar-stack {
+    @apply flex -space-x-2;
+}
+
+.avatar-stack .avatar {
+    @apply ring-2 ring-background;
+}
+
+/* Badge */
+.priority-badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium;
+}
+
+/* Form Styles */
+.form-group {
+    @apply space-y-2;
+}
+
+.form-label {
+    @apply text-sm font-medium text-foreground;
+}
+
+.form-input {
+    @apply w-full h-10 px-3 rounded-md border border-input bg-background;
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent;
+    @apply transition-all duration-200;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    @apply fixed inset-0 bg-background/80 backdrop-blur-sm z-50;
+    @apply flex items-center justify-center;
+}
+
+.modal-content {
+    @apply bg-card border border-border rounded-lg shadow-xl;
+    @apply max-w-lg w-full mx-4;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Dropdown */
+.dropdown-content {
+    @apply bg-popover border border-border rounded-md shadow-lg;
+    @apply py-1 min-w-[160px];
+}
+
+.dropdown-item {
+    @apply flex items-center gap-2 px-3 py-2 text-sm;
+    @apply hover:bg-accent cursor-pointer;
+    @apply transition-colors duration-150;
+}
+
+/* Progress Bar */
+.progress-bar {
+    @apply h-2 bg-muted rounded-full overflow-hidden;
+}
+
+.progress-fill {
+    @apply h-full rounded-full transition-all duration-500;
+}
+
+/* Notification Badge */
+.notification-badge {
+    @apply absolute -top-1 -right-1 w-5 h-5;
+    @apply flex items-center justify-center;
+    @apply bg-destructive text-destructive-foreground text-xs font-medium;
+    @apply rounded-full;
+}
+
+/* Empty State */
+.empty-state {
+    @apply flex flex-col items-center justify-center py-12 text-center;
+}
+
+.empty-state-icon {
+    @apply w-16 h-16 text-muted-foreground/50 mb-4;
+}
+
+/* Loading States */
+.skeleton {
+    @apply bg-muted animate-pulse rounded;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .sidebar {
+        @apply -translate-x-full;
+        @apply data-[open=true]:translate-x-0;
+        @apply transition-transform duration-300;
+    }
+
+    .app-header {
+        left: 0;
+    }
+
+    .main-content {
+        @apply ml-0;
+    }
+}
+
+/* Theme Transition */
+* {
+    transition-property: background-color, border-color;
+    transition-duration: 200ms;
+    transition-timing-function: ease-out;
+}

@@ -1,0 +1,169 @@
+{
+  "identity": {
+    "name": "E1",
+    "role": "The Anti-AI Designer",
+    "principles": [
+      "Fusion over Imitation",
+      "Emotion First",
+      "Content is King",
+      "Zoom In",
+      "Negative Space",
+      "Contrast"
+    ]
+  },
+  "project_context": {
+    "app_type": "SaaS / Productivity",
+    "theme_strategy": "Archetype 4: Swiss & High-Contrast (The Performance Pro)",
+    "emotional_tone": "Reliable, Fast, Organized, Precision",
+    "target_audience": "Project Managers, Developers, Agencies"
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Manrope, sans-serif",
+      "body": "Inter, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "installation": "import '@fontsource/manrope'; import '@fontsource/inter'; import '@fontsource/jetbrains-mono';",
+    "rules": [
+      "Headings (Size > 32px): MUST use tracking-tight (-0.02em)",
+      "Overlines / Labels: MUST be Uppercase + text-xs + tracking-widest (0.1em)",
+      "Body: Relaxed line-height (leading-relaxed) for readability",
+      "Weights: Use Light (300) for large display text, Semibold (600) for UI labels. Avoid default Bold (700) everywhere."
+    ]
+  },
+  "colors": {
+    "palette_strategy": "High Contrast & Functional",
+    "primary": {
+      "name": "International Klein Blue",
+      "hex": "#002FA7",
+      "tailwind_var": "--primary"
+    },
+    "light_theme": {
+      "background": "#FFFFFF",
+      "foreground": "#0F172A",
+      "card": "#FFFFFF",
+      "card_foreground": "#0F172A",
+      "popover": "#FFFFFF",
+      "popover_foreground": "#0F172A",
+      "primary": "#0F172A",
+      "primary_foreground": "#F8FAFC",
+      "secondary": "#F1F5F9",
+      "secondary_foreground": "#0F172A",
+      "muted": "#F1F5F9",
+      "muted_foreground": "#64748B",
+      "accent": "#F1F5F9",
+      "accent_foreground": "#0F172A",
+      "destructive": "#EF4444",
+      "destructive_foreground": "#F8FAFC",
+      "border": "#E2E8F0",
+      "input": "#E2E8F0",
+      "ring": "#0F172A"
+    },
+    "dark_theme": {
+      "background": "#020617",
+      "foreground": "#F8FAFC",
+      "card": "#020617",
+      "card_foreground": "#F8FAFC",
+      "popover": "#020617",
+      "popover_foreground": "#F8FAFC",
+      "primary": "#F8FAFC",
+      "primary_foreground": "#020617",
+      "secondary": "#1E293B",
+      "secondary_foreground": "#F8FAFC",
+      "muted": "#1E293B",
+      "muted_foreground": "#94A3B8",
+      "accent": "#1E293B",
+      "accent_foreground": "#F8FAFC",
+      "destructive": "#7F1D1D",
+      "destructive_foreground": "#F8FAFC",
+      "border": "#1E293B",
+      "input": "#1E293B",
+      "ring": "#D1D5DB"
+    },
+    "forbidden_colors": ["#1B93A4", "#7351B7"]
+  },
+  "layout": {
+    "spacing_system": "Generous but Dense",
+    "grid_mode": "Bento Grid Mode B (High Density)",
+    "container_padding": "p-6 or p-8 for main containers",
+    "gap_strategy": "gap-4 for dashboards, gap-8 for marketing pages",
+    "rules": [
+      "Mobile-First: Always start with grid-cols-1",
+      "Optical Alignment: Add extra padding to visually center text blocks next to icons",
+      "No Center-Everything: Use asymmetry to create tension"
+    ]
+  },
+  "components": {
+    "buttons": {
+      "style": "Sharp or slightly rounded (rounded-md)",
+      "interaction": "Scale down slightly on click (active:scale-95)",
+      "shadow": "shadow-sm"
+    },
+    "cards": {
+      "style": "Flat, 1px border (border-border), no shadow by default",
+      "hover": "hover:border-primary/50 transition-colors duration-200",
+      "content_padding": "p-6"
+    },
+    "inputs": {
+      "style": "bg-transparent border-input focus:ring-1 focus:ring-primary",
+      "height": "h-10"
+    },
+    "navigation": {
+      "style": "Sidebar for app, Sticky Header for marketing",
+      "glassmorphism": "Use backdrop-blur-xl and bg-background/80 for sticky headers"
+    },
+    "modals": {
+      "overlay": "bg-background/80 backdrop-blur-sm",
+      "animation": "Scale in from 95% to 100%, fade in"
+    }
+  },
+  "visual_enhancers": {
+    "textures": "Use subtle noise overlays on solid backgrounds to prevent 'digital flatness'",
+    "borders": "Use 'Tracing Beam' effect for high-conversion cards or active states",
+    "shadows": "Use layered shadows (ambient + direct) for floating elements",
+    "glassmorphism": "Optical Clarity: border-white/10 + backdrop-blur-xl"
+  },
+  "assets": {
+    "icons": "lucide-react (default), @phosphor-icons/react (for marketing)",
+    "images": {
+      "avatars": [
+        "https://images.unsplash.com/photo-1589220286904-3dcef62c68ee?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "https://images.unsplash.com/photo-1575299833801-85ce40813bac?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "https://images.pexels.com/photos/1181519/pexels-photo-1181519.jpeg",
+        "https://images.pexels.com/photos/32160350/pexels-photo-32160350.jpeg"
+      ],
+      "placeholders": "Use abstract geometric shapes or gradients if no image is available. DO NOT use generic stock photos of 'people shaking hands'."
+    }
+  },
+  "motion": {
+    "library": "framer-motion",
+    "transitions": "transition-all duration-200 ease-out",
+    "micro_interactions": "Hover states for all interactive elements. Click/press states.",
+    "page_transitions": "Fade in + slight slide up (y: 10 -> 0)"
+  },
+  "accessibility": {
+    "contrast": "Ensure 4.5:1 for normal text, 3:1 for large text",
+    "focus_states": "Visible focus rings (ring-2 ring-offset-2)",
+    "reduced_motion": "Respect prefers-reduced-motion media query",
+    "testing": "All interactive elements MUST include data-testid attribute"
+  },
+  "tech_stack": {
+    "framework": "React (JS)",
+    "styling": "Tailwind CSS",
+    "components": "Shadcn UI",
+    "icons": "Lucide React",
+    "charts": "Recharts"
+  },
+  "universal_guidelines": [
+    "Do not use generic centered layouts.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur).",
+    "NEVER use AI assistant Emoji characters like 🤖🧠 etc.",
+    "Every interaction needs micro-animations.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Subtle grain textures, noise overlays, custom cursors.",
+    "Components MUST use named exports.",
+    "Pages MUST use default exports.",
+    "Use sonner for toasts."
+  ]
+}

@@ -1,0 +1,223 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 222 47% 11%;
+        --card: 0 0% 100%;
+        --card-foreground: 222 47% 11%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222 47% 11%;
+        --primary: 222 47% 11%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 210 40% 96%;
+        --secondary-foreground: 222 47% 11%;
+        --muted: 210 40% 96%;
+        --muted-foreground: 215 16% 47%;
+        --accent: 210 40% 96%;
+        --accent-foreground: 222 47% 11%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 214 32% 91%;
+        --input: 214 32% 91%;
+        --ring: 222 47% 11%;
+        --chart-1: 221 83% 53%;
+        --chart-2: 142 71% 45%;
+        --chart-3: 47 96% 53%;
+        --chart-4: 262 83% 58%;
+        --chart-5: 339 90% 51%;
+        --radius: 0.5rem;
+        --success: 142 71% 45%;
+        --warning: 47 96% 53%;
+        --info: 221 83% 53%;
+        
+        /* Organization Branding Variables */
+        --org-primary-color: #0f172a;
+        --org-secondary-color: #3b82f6;
+        --org-accent-color: #10b981;
+        --org-primary-light: #1e293b;
+        --org-primary-dark: #020617;
+        --org-secondary-light: #60a5fa;
+        --org-secondary-dark: #2563eb;
+    }
+
+    .dark {
+        --background: 224 71% 4%;
+        --foreground: 210 40% 98%;
+        --card: 224 71% 4%;
+        --card-foreground: 210 40% 98%;
+        --popover: 224 71% 4%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 210 40% 98%;
+        --primary-foreground: 224 71% 4%;
+        --secondary: 217 33% 17%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217 33% 17%;
+        --muted-foreground: 215 20% 65%;
+        --accent: 217 33% 17%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 63% 31%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217 33% 17%;
+        --input: 217 33% 17%;
+        --ring: 212 26% 83%;
+        --chart-1: 221 83% 53%;
+        --chart-2: 142 71% 45%;
+        --chart-3: 47 96% 53%;
+        --chart-4: 262 83% 58%;
+        --chart-5: 339 90% 51%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    html {
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-family: 'Inter', sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Manrope', sans-serif;
+    }
+
+    code, pre {
+        font-family: 'JetBrains Mono', monospace;
+    }
+}
+
+@layer utilities {
+    .font-heading {
+        font-family: 'Manrope', sans-serif;
+    }
+
+    .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tracking-tight {
+        letter-spacing: -0.02em;
+    }
+
+    .tracking-widest {
+        letter-spacing: 0.1em;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-subtle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-in {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* Task priority colors */
+.priority-urgent { @apply text-red-500 bg-red-50 dark:bg-red-950/30; }
+.priority-high { @apply text-orange-500 bg-orange-50 dark:bg-orange-950/30; }
+.priority-medium { @apply text-yellow-600 bg-yellow-50 dark:bg-yellow-950/30; }
+.priority-low { @apply text-green-500 bg-green-50 dark:bg-green-950/30; }
+
+/* Task status colors */
+.status-todo { @apply text-slate-500 bg-slate-50 dark:bg-slate-950/30; }
+.status-in_progress { @apply text-blue-500 bg-blue-50 dark:bg-blue-950/30; }
+.status-review { @apply text-purple-500 bg-purple-50 dark:bg-purple-950/30; }
+.status-done { @apply text-green-500 bg-green-50 dark:bg-green-950/30; }
+
+/* Kanban styles */
+.kanban-column {
+    @apply bg-muted/30 rounded-lg min-h-[500px];
+}
+
+.kanban-card {
+    @apply bg-card border border-border rounded-md p-3 mb-2 cursor-grab active:cursor-grabbing;
+    @apply hover:border-primary/50 transition-colors duration-200;
+}
+
+.kanban-card:active {
+    @apply shadow-lg;
+}
+
+/* Glass effect */
+.glass {
+    @apply backdrop-blur-xl bg-background/80 border border-border/50;
+}
+
+/* Debug wrapper fix */
+@layer base {
+    [data-debug-wrapper="true"] {
+        display: contents !important;
+    }
+}
+
+/* Hide Emergent branding badge - uses high specificity to override inline styles */
+#emergent-badge,
+a#emergent-badge,
+a[id="emergent-badge"],
+[data-testid="emergent-badge"],
+[class*="emergent-badge"],
+a[href*="emergent.sh"],
+a[href*="app.emergent.sh"],
+div[class*="made-with-emergent"],
+.emergent-watermark,
+#emergent-watermark {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
