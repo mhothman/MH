@@ -162,9 +162,27 @@ export const TimeTracker = ({ taskId, taskTitle, onTimeLogged, canTrackTime = tr
 export const GlobalTimerIndicator = () => {
   const [activeTimer, setActiveTimer] = useState(null);
   const [elapsed, setElapsed] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   useEffect(() => {
+    // Check if user is authenticated before polling
+    const token = localStorage.getItem('proflow_token');
+    if (!token) {
+      setIsAuthenticated(false);
+      setActiveTimer(null);
+      return;
+    }
+    setIsAuthenticated(true);
+
     const checkTimer = async () => {
+      // Double-check token exists before making request
+      const currentToken = localStorage.getItem('proflow_token');
+      if (!currentToken) {
+        setIsAuthenticated(false);
+        setActiveTimer(null);
+        return;
+      }
+
       try {
         const response = await getActiveTimer();
         // API returns {active: boolean, timer: object|null}
@@ -174,6 +192,12 @@ export const GlobalTimerIndicator = () => {
           setActiveTimer(null);
         }
       } catch (error) {
+        // Check if it's a 401 unauthorized error - stop polling
+        if (error.status === 401) {
+          setIsAuthenticated(false);
+          setActiveTimer(null);
+          return;
+        }
         console.error("Failed to check timer:", error);
         setActiveTimer(null);
       }
