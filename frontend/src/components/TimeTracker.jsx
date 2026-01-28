@@ -258,7 +258,7 @@ export const GlobalTimerIndicator = () => {
     }
   };
 
-  if (!activeTimer) return null;
+  if (!activeTimer || !isAuthenticated) return null;
 
   return (
     <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-full" data-testid="global-timer">
