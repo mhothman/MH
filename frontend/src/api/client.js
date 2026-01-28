@@ -24,6 +24,22 @@ export const handleResponse = async (response) => {
     const err = new Error(error.detail?.message || error.detail || 'Request failed');
     err.response = { status: response.status, data: error };
     err.status = response.status;
+    
+    // Handle token expiration - clear token and redirect to login
+    if (response.status === 401) {
+      const currentPath = window.location.pathname;
+      // Don't redirect if already on login/register page
+      if (!currentPath.includes('/login') && !currentPath.includes('/register')) {
+        // Clear expired token
+        localStorage.removeItem('proflow_token');
+        localStorage.removeItem('proflow_user');
+        // Redirect to login after a brief delay to allow current request to complete
+        setTimeout(() => {
+          window.location.href = '/login?expired=true';
+        }, 100);
+      }
+    }
+    
     throw err;
   }
   return response.json();
