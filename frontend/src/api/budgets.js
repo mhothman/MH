@@ -119,8 +119,8 @@ export const checkBudgetLock = async (projectId) => {
 // ==================== Constants ====================
 
 export const CURRENCIES = [
-  { id: 'USD', label: 'USD - US Dollar', symbol: '$' },
   { id: 'EGP', label: 'EGP - Egyptian Pound', symbol: 'E£' },
+  { id: 'USD', label: 'USD - US Dollar', symbol: '$' },
 ];
 
 export const EXPENSE_CATEGORIES = [
