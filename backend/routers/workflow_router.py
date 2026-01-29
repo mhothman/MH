@@ -119,7 +119,7 @@ async def create_workflow(org_id: str, data: TaskWorkflowCreate, request: Reques
 
 
 @router.get("/org/{org_id}")
-async def get_org_workflows(org_id: str, request: Request, active_only: bool = False):
+async def get_org_workflows(org_id: str, request: Request, active_only: bool = False, include_rules: bool = True):
     """Get all workflows for an organization"""
     user = await require_auth(request)
     
@@ -132,9 +132,15 @@ async def get_org_workflows(org_id: str, request: Request, active_only: bool = F
     
     workflows = await workflow_repository.find_by_org(org_id, active_only=active_only)
     
-    # Enrich with counts
+    # Enrich with counts and optionally rules
     for wf in workflows:
-        wf["rules_count"] = await workflow_repository.count_rules_by_workflow(wf["workflow_id"])
+        if include_rules:
+            rules = await workflow_repository.get_rules_by_workflow(wf["workflow_id"])
+            wf["rules"] = rules
+            wf["rules_count"] = len(rules)
+        else:
+            wf["rules_count"] = await workflow_repository.count_rules_by_workflow(wf["workflow_id"])
+        
         if wf.get("scope") == "selective":
             wf["assigned_projects_count"] = await workflow_repository.count_assigned_projects(wf["workflow_id"])
             assignments = await workflow_repository.get_assigned_projects(wf["workflow_id"])
