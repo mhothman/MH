@@ -334,10 +334,14 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
   const handleDeleteExpense = async () => {
     try {
       await deleteExpense(itemToDelete.expense_id);
+      toast.success("Expense deleted successfully");
       setDeleteDialogOpen(false);
       setItemToDelete(null);
-      toast.success("Expense deleted successfully");
-      loadBudgetData();
+      
+      // Reload data in background
+      loadBudgetData().catch((err) => {
+        console.error("Failed to reload budget data after expense deletion:", err);
+      });
     } catch (error) {
       toast.error(error.message || "Failed to delete expense");
     }
