@@ -246,12 +246,6 @@ export default function SettingsPage() {
     }
   };
 
-  // Handler functions for sub-components
-  const handleSaveOrganization = async (formData) => {
-    await updateOrganization(selectedOrg.org_id, formData);
-    loadOrganizations();
-  };
-
   const handleInviteMember = async (data) => {
     await inviteMember(selectedOrg.org_id, data);
     loadMembers(selectedOrg.org_id);
