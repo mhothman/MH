@@ -171,6 +171,7 @@ export function WorkflowSettings({ orgId, canManageWorkflows = false }) {
   const loadData = async () => {
     try {
       setLoading(true);
+      // Load workflows and projects in parallel
       const [workflowsData, projectsData] = await Promise.all([
         getOrgWorkflows(orgId),
         getProjects()
@@ -178,10 +179,9 @@ export function WorkflowSettings({ orgId, canManageWorkflows = false }) {
       setWorkflows(workflowsData);
       setProjects(projectsData.filter(p => p.org_id === orgId));
       
-      // Auto-select the first workflow if any
+      // Auto-select the first workflow if any (already includes rules)
       if (workflowsData.length > 0) {
-        const fullWorkflow = await getWorkflow(workflowsData[0].workflow_id);
-        setSelectedWorkflow(fullWorkflow);
+        setSelectedWorkflow(workflowsData[0]);
       }
     } catch (error) {
       toast.error("Failed to load workflows");
