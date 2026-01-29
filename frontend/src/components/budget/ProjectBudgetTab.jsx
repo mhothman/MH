@@ -279,13 +279,17 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
         category: expenseForm.category,
         date: expenseForm.date,
         description: expenseForm.description || null,
-        document_id: expenseForm.document_id || null,
+        document_id: expenseForm.document_id && expenseForm.document_id !== "" ? expenseForm.document_id : null,
       });
       
+      toast.success("Expense created successfully");
       setExpenseDialogOpen(false);
       resetExpenseForm();
-      toast.success("Expense created successfully");
-      loadBudgetData();
+      
+      // Reload data in background - don't fail the whole operation if this fails
+      loadBudgetData().catch((err) => {
+        console.error("Failed to reload budget data after expense creation:", err);
+      });
     } catch (error) {
       toast.error(error.message || "Failed to create expense");
     } finally {
