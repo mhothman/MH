@@ -100,6 +100,7 @@ api_router.include_router(health_router.router, prefix="/health", tags=["Health 
 api_router.include_router(ssl_router.router, prefix="/ssl", tags=["SSL Certificates"])
 api_router.include_router(workflow_router.router, prefix="/workflows", tags=["Task Workflows"])
 api_router.include_router(document_router.router, prefix="/documents", tags=["Documents"])
+api_router.include_router(budget_router.router, prefix="/budgets", tags=["Budgets"])
 
 app.include_router(api_router)
 
