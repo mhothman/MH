@@ -216,19 +216,30 @@ export function CreateTaskDialog({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Start Date</Label>
+              <Label className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Start Date <span className="text-destructive">*</span>
+              </Label>
               <Input
                 type="date"
                 value={newTask.start_date}
                 onChange={(e) => setNewTask({ ...newTask, start_date: e.target.value })}
+                data-testid="task-start-date-input"
+                required
               />
             </div>
             <div className="space-y-2">
-              <Label>Due Date</Label>
+              <Label className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Due Date <span className="text-destructive">*</span>
+              </Label>
               <Input
                 type="date"
                 value={newTask.due_date}
+                min={newTask.start_date}
                 onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
+                data-testid="task-due-date-input"
+                required
               />
             </div>
           </div>
