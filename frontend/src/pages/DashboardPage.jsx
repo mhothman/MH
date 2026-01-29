@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getOrganizations, getMyPermissions, hasPermission, Permission } from "../api";
+import { useAppData } from "../context/AppDataContext";
+import { hasPermission, Permission } from "../api";
 import { getDashboard } from "../api/dashboard";
-import { getProjects } from "../api/projects";
-import { getPendingDocumentApprovals, getOrgDocumentApprovals, getStatusColor, getStatusLabel } from "../api/documents";
+import { getOrgDocumentApprovals } from "../api/documents";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -26,12 +26,22 @@ import { formatDistanceToNow } from "date-fns";
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { 
+    projects: globalProjects, 
+    permissions: globalPermissions, 
+    currentOrgId,
+    loadProjects,
+    loadPermissions,
+    projectsLoading 
+  } = useAppData();
+  
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState(null);
-  const [projects, setProjects] = useState([]);
-  const [permissions, setPermissions] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
-  const [currentOrgId, setCurrentOrgId] = useState(null);
+
+  // Use global data
+  const projects = globalProjects.slice(0, 4);
+  const permissions = globalPermissions;
 
   // Permission check helper
   const canDo = (permission) => hasPermission(permissions, permission);
