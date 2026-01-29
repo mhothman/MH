@@ -206,10 +206,12 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <AppRouter />
-          <Toaster richColors position="top-right" />
-        </BrowserRouter>
+        <AppDataProvider>
+          <BrowserRouter>
+            <AppRouter />
+            <Toaster richColors position="top-right" />
+          </BrowserRouter>
+        </AppDataProvider>
       </AuthProvider>
     </ThemeProvider>
   );
