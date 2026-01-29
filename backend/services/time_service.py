@@ -313,6 +313,13 @@ class TimeService:
         if not entry:
             return False, "Time entry not found"
         
+        # Remove budget cost tracking
+        try:
+            budget_service = get_budget_service()
+            await budget_service.remove_time_entry_cost(entry_id)
+        except Exception as e:
+            logger.warning(f"Failed to remove budget cost for time entry {entry_id}: {e}")
+        
         # Update task's actual hours
         await db.tasks.update_one(
             {"task_id": entry["task_id"]},
