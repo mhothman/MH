@@ -56,7 +56,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { useAppData } from "../context/AppDataContext";
 
 export default function ProjectsPage() {
