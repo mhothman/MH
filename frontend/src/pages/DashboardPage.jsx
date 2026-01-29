@@ -37,43 +37,58 @@ export default function DashboardPage() {
   const canDo = (permission) => hasPermission(permissions, permission);
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      const [dashboardData, projectsData, orgsData] = await Promise.all([
-        getDashboard(),
-        getProjects(),
-        getOrganizations(),
-      ]);
-      setDashboard(dashboardData);
-      setProjects(projectsData.slice(0, 4));
-      
-      // Load permissions and pending approvals if org exists
-      if (orgsData.length > 0) {
-        const orgId = orgsData[0].org_id;
-        setCurrentOrgId(orgId);
+    let isMounted = true;
+    
+    const loadData = async () => {
+      try {
+        const [dashboardData, projectsData, orgsData] = await Promise.all([
+          getDashboard(),
+          getProjects(),
+          getOrganizations(),
+        ]);
         
-        try {
-          const [permData, approvalsData] = await Promise.all([
-            getMyPermissions(orgId),
-            // Get all pending approvals for admins (they can force approve)
-            getOrgDocumentApprovals(orgId, 'pending', 5).catch(() => []),
-          ]);
-          setPermissions(permData.permissions || []);
-          setPendingApprovals(approvalsData.slice(0, 5) || []);
-        } catch (e) {
-          setPermissions([]);
-          setPendingApprovals([]);
+        if (!isMounted) return;
+        
+        setDashboard(dashboardData);
+        setProjects(projectsData.slice(0, 4));
+        
+        // Load permissions and pending approvals if org exists
+        if (orgsData.length > 0) {
+          const orgId = orgsData[0].org_id;
+          setCurrentOrgId(orgId);
+          
+          try {
+            const [permData, approvalsData] = await Promise.all([
+              getMyPermissions(orgId),
+              getOrgDocumentApprovals(orgId, 'pending', 5).catch(() => []),
+            ]);
+            
+            if (!isMounted) return;
+            
+            setPermissions(permData.permissions || []);
+            setPendingApprovals(approvalsData.slice(0, 5) || []);
+          } catch (e) {
+            if (!isMounted) return;
+            setPermissions([]);
+            setPendingApprovals([]);
+          }
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        console.error("Failed to load dashboard:", error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
         }
       }
-    } catch (error) {
-      console.error("Failed to load dashboard:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    
+    loadData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const getPriorityColor = (priority) => {
     const colors = {
