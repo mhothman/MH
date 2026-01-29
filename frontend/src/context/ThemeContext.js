@@ -178,6 +178,7 @@ export const ThemeProvider = ({ children }) => {
   const loadBranding = useCallback(async (orgId) => {
     if (!orgId) {
       setBranding(DEFAULT_BRANDING);
+      localStorage.removeItem('proflow_branding');
       applyFullBranding(DEFAULT_BRANDING);
       return;
     }
@@ -186,11 +187,25 @@ export const ThemeProvider = ({ children }) => {
     try {
       const data = await getPublicBranding(orgId);
       setBranding(data);
+      localStorage.setItem('proflow_branding', JSON.stringify(data));
       applyFullBranding(data);
     } catch (error) {
       console.error('Failed to load branding:', error);
-      setBranding(DEFAULT_BRANDING);
-      applyFullBranding(DEFAULT_BRANDING);
+      // Keep existing branding from localStorage if API fails
+      const saved = localStorage.getItem('proflow_branding');
+      if (saved) {
+        try {
+          const savedBranding = JSON.parse(saved);
+          setBranding(savedBranding);
+          applyFullBranding(savedBranding);
+        } catch (e) {
+          setBranding(DEFAULT_BRANDING);
+          applyFullBranding(DEFAULT_BRANDING);
+        }
+      } else {
+        setBranding(DEFAULT_BRANDING);
+        applyFullBranding(DEFAULT_BRANDING);
+      }
     } finally {
       setBrandingLoading(false);
     }
