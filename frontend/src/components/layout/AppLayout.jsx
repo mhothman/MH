@@ -315,7 +315,10 @@ export const AppLayout = ({ children }) => {
                 {organizations.map((org) => (
                   <DropdownMenuItem
                     key={org.org_id}
-                    onClick={() => setCurrentOrg(org)}
+                    onClick={() => {
+                      setCurrentOrg(org);
+                      localStorage.setItem('proflow_current_org', JSON.stringify(org));
+                    }}
                     className="cursor-pointer"
                   >
                     <Building2 className="w-4 h-4 mr-2" />
