@@ -459,7 +459,8 @@ async def create_document_workflow(
 async def get_document_workflows(
     request: Request,
     org_id: str,
-    active_only: bool = False
+    active_only: bool = False,
+    include_rules: bool = True
 ):
     """Get all document workflows for an organization"""
     user = await require_auth(request)
@@ -473,9 +474,14 @@ async def get_document_workflows(
     
     workflows = await document_workflow_repository.find_workflows_by_org(org_id, active_only)
     
-    # Enrich with rule counts
+    # Enrich with rule counts and optionally rules
     for wf in workflows:
-        wf["rules_count"] = await document_workflow_repository.count_rules_by_workflow(wf["workflow_id"])
+        if include_rules:
+            rules = await document_workflow_repository.get_rules_by_workflow(wf["workflow_id"])
+            wf["rules"] = rules
+            wf["rules_count"] = len(rules)
+        else:
+            wf["rules_count"] = await document_workflow_repository.count_rules_by_workflow(wf["workflow_id"])
     
     return workflows
 
