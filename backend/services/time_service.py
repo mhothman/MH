@@ -93,6 +93,23 @@ class TimeService:
         
         await db.time_entries.insert_one(entry)
         
+        # Process budget cost tracking
+        try:
+            # Get task to find project_id
+            task = await db.tasks.find_one({"task_id": timer["task_id"]}, {"_id": 0, "project_id": 1})
+            if task:
+                budget_service = get_budget_service()
+                await budget_service.process_time_entry_cost(
+                    org_id=timer["org_id"],
+                    project_id=task["project_id"],
+                    task_id=timer["task_id"],
+                    user_id=user_id,
+                    duration_minutes=max(1, duration_minutes),
+                    time_entry_id=entry_id
+                )
+        except Exception as e:
+            logger.warning(f"Failed to process budget cost for time entry {entry_id}: {e}")
+        
         # Update task's actual hours
         await db.tasks.update_one(
             {"task_id": timer["task_id"]},
