@@ -181,6 +181,7 @@ export const AppLayout = ({ children }) => {
     if (wsRef.current) {
       wsRef.current.close();
     }
+    localStorage.removeItem('proflow_current_org');
     await logout();
     navigate("/");
   };
