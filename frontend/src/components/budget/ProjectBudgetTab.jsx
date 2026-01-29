@@ -361,10 +361,14 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
         description: transactionForm.description || null,
       });
       
+      toast.success("Transaction created successfully");
       setTransactionDialogOpen(false);
       setTransactionForm({ amount: "", description: "", source: "manual" });
-      toast.success("Transaction created successfully");
-      loadBudgetData();
+      
+      // Reload data in background
+      loadBudgetData().catch((err) => {
+        console.error("Failed to reload budget data after transaction creation:", err);
+      });
     } catch (error) {
       toast.error(error.message || "Failed to create transaction");
     } finally {
