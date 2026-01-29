@@ -6,6 +6,7 @@ import "@/App.css";
 // Context
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { AppDataProvider } from "./context/AppDataContext";
 
 // Eager load - critical path pages
 import LandingPage from "./pages/LandingPage";
