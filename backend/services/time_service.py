@@ -194,16 +194,21 @@ class TimeService:
         
         entries = await db.time_entries.find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
         
-        # Batch fetch user names
+        # Batch fetch user names and pictures
         user_ids = list(set(e.get("user_id") for e in entries if e.get("user_id")))
         if user_ids:
-            users = await db.users.find({"user_id": {"$in": user_ids}}, {"_id": 0, "user_id": 1, "name": 1}).to_list(len(user_ids))
-            user_map = {u["user_id"]: u.get("name", "Unknown") for u in users}
+            users = await db.users.find(
+                {"user_id": {"$in": user_ids}}, 
+                {"_id": 0, "user_id": 1, "name": 1, "picture": 1}
+            ).to_list(len(user_ids))
+            user_map = {u["user_id"]: {"name": u.get("name", "Unknown"), "picture": u.get("picture")} for u in users}
         else:
             user_map = {}
         
         for entry in entries:
-            entry["user_name"] = user_map.get(entry.get("user_id"), "Unknown")
+            user_info = user_map.get(entry.get("user_id"), {"name": "Unknown", "picture": None})
+            entry["user_name"] = user_info["name"]
+            entry["user_picture"] = user_info["picture"]
             if isinstance(entry.get("created_at"), str):
                 entry["created_at"] = datetime.fromisoformat(entry["created_at"].replace("Z", "+00:00"))
         
