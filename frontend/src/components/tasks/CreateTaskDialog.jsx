@@ -2,6 +2,7 @@
  * CreateTaskDialog - Modal for creating a new task
  */
 import { useState } from "react";
+import { format, addDays } from "date-fns";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -21,7 +22,8 @@ import {
 } from "../ui/select";
 import { LoadingSpinner } from "../ui/loading-spinner";
 import { RichTextEditor } from "../RichTextEditor";
-import { Users, Repeat } from "lucide-react";
+import { Users, Repeat, Calendar } from "lucide-react";
+import { toast } from "sonner";
 
 const PRIORITIES = [
   { id: "low", label: "Low", color: "bg-green-500" },
@@ -37,6 +39,12 @@ const DEFAULT_STATUSES = [
   { id: "done", label: "Done", color: "#22c55e" },
 ];
 
+// Helper function to get default dates
+const getDefaultDates = () => ({
+  start_date: format(new Date(), "yyyy-MM-dd"),
+  due_date: format(addDays(new Date(), 10), "yyyy-MM-dd"),
+});
+
 export function CreateTaskDialog({
   open,
   onOpenChange,
@@ -50,13 +58,34 @@ export function CreateTaskDialog({
     description: "",
     status: statuses.length > 0 ? statuses[0].id : "todo",
     priority: "medium",
-    due_date: "",
-    start_date: "",
+    ...getDefaultDates(),
     recurrence: "none",
     assignee_ids: [],
   });
 
   const handleSubmit = async () => {
+    // Validate required fields
+    if (!newTask.title.trim()) {
+      toast.error("Please enter a task title");
+      return;
+    }
+    
+    if (!newTask.start_date) {
+      toast.error("Please select a start date");
+      return;
+    }
+    
+    if (!newTask.due_date) {
+      toast.error("Please select a due date");
+      return;
+    }
+    
+    // Validate end date is after start date
+    if (new Date(newTask.due_date) < new Date(newTask.start_date)) {
+      toast.error("Due date must be after or equal to start date");
+      return;
+    }
+    
     await onSubmit(newTask);
     // Reset form
     setNewTask({
@@ -64,8 +93,7 @@ export function CreateTaskDialog({
       description: "",
       status: statuses.length > 0 ? statuses[0].id : "todo",
       priority: "medium",
-      due_date: "",
-      start_date: "",
+      ...getDefaultDates(),
       recurrence: "none",
       assignee_ids: [],
     });
@@ -78,8 +106,7 @@ export function CreateTaskDialog({
         description: "",
         status: statuses.length > 0 ? statuses[0].id : "todo",
         priority: "medium",
-        due_date: "",
-        start_date: "",
+        ...getDefaultDates(),
         recurrence: "none",
         assignee_ids: [],
       });
