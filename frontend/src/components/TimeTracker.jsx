@@ -1,15 +1,29 @@
 import { useState, useEffect, useCallback } from "react";
-import { startTimer, stopTimer, getActiveTimer, discardTimer } from "../api/time-entries";
+import { startTimer, stopTimer, getActiveTimer, discardTimer, getTimeEntries } from "../api/time-entries";
 import { getMyPermissions, hasPermission, Permission, getOrganizations } from "../api";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { toast } from "sonner";
-import { Play, Square, X, Clock } from "lucide-react";
+import { Play, Square, X, Clock, History } from "lucide-react";
+import { format, formatDistanceToNow } from "date-fns";
 
-export const TimeTracker = ({ taskId, taskTitle, onTimeLogged, canTrackTime = true }) => {
+export const TimeTracker = ({ taskId, taskTitle, onTimeLogged, canTrackTime = true, estimatedHours }) => {
   const [activeTimer, setActiveTimer] = useState(null);
   const [elapsed, setElapsed] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [timeLogs, setTimeLogs] = useState([]);
+  const [showLogs, setShowLogs] = useState(true);
+
+  // Fetch time entries for this task
+  const loadTimeLogs = useCallback(async () => {
+    try {
+      const entries = await getTimeEntries(taskId);
+      setTimeLogs(entries || []);
+    } catch (error) {
+      console.error("Failed to load time entries:", error);
+    }
+  }, [taskId]);
 
   const checkActiveTimer = useCallback(async () => {
     try {
@@ -28,7 +42,8 @@ export const TimeTracker = ({ taskId, taskTitle, onTimeLogged, canTrackTime = tr
 
   useEffect(() => {
     checkActiveTimer();
-  }, [checkActiveTimer]);
+    loadTimeLogs();
+  }, [checkActiveTimer, loadTimeLogs]);
 
   useEffect(() => {
     if (!activeTimer || !activeTimer.started_at) {
