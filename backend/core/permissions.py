@@ -192,6 +192,11 @@ ROLE_PERMISSIONS: Dict[str, List[str]] = {
         # Document permissions - PM can create, edit, and approve
         Permission.DOCUMENT_VIEW, Permission.DOCUMENT_CREATE, Permission.DOCUMENT_EDIT,
         Permission.DOCUMENT_CHANGE_STATUS, Permission.DOCUMENT_APPROVE,
+        # Budget permissions - PM can view and request changes
+        Permission.BUDGET_VIEW,
+        # Expense permissions - PM can manage expenses
+        Permission.EXPENSE_VIEW, Permission.EXPENSE_CREATE, Permission.EXPENSE_EDIT,
+        Permission.EXPENSE_DELETE,
     ],
     
     "team_member": [
