@@ -235,6 +235,9 @@ ROLE_PERMISSIONS: Dict[str, List[str]] = {
         Permission.APPROVAL_VIEW,
         # Document permissions - Viewer can only view
         Permission.DOCUMENT_VIEW,
+        # Budget permissions - Viewer can only view
+        Permission.BUDGET_VIEW,
+        Permission.EXPENSE_VIEW,
     ],
 }
 
