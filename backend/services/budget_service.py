@@ -68,7 +68,7 @@ class BudgetService:
         await db.project_budgets.insert_one(budget)
         
         # Log audit
-        await audit_service.log_action(
+        await audit_service.log(
             org_id=org_id,
             user_id=created_by,
             action="budget.create",
@@ -140,7 +140,7 @@ class BudgetService:
         await self.recalculate_budget(budget_id)
         
         # Log audit
-        await audit_service.log_action(
+        await audit_service.log(
             org_id=budget["org_id"],
             user_id=updated_by,
             action="budget.update",
@@ -169,7 +169,7 @@ class BudgetService:
         await db.project_budgets.delete_one({"budget_id": budget_id})
         
         # Log audit
-        await audit_service.log_action(
+        await audit_service.log(
             org_id=budget["org_id"],
             user_id=deleted_by,
             action="budget.delete",
@@ -456,7 +456,7 @@ class BudgetService:
             )
         
         # Log audit
-        await audit_service.log_action(
+        await audit_service.log(
             org_id=org_id,
             user_id=created_by,
             action="expense.create",
@@ -583,7 +583,7 @@ class BudgetService:
         await db.expenses.delete_one({"expense_id": expense_id})
         
         # Log audit
-        await audit_service.log_action(
+        await audit_service.log(
             org_id=expense["org_id"],
             user_id=deleted_by,
             action="expense.delete",
@@ -880,7 +880,7 @@ class BudgetService:
         )
         
         # Log audit
-        await audit_service.log_action(
+        await audit_service.log(
             org_id=budget["org_id"],
             user_id=overridden_by,
             action="budget.override_lock",
