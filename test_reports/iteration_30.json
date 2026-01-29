@@ -32,7 +32,7 @@
   ],
   "action_items": [],
   "critical_code_review_comments": [
-    "CORS fix correctly implemented - CORS_ORIGINS changed from '*' to specific origins 'https://approvalmate-3.preview.emergentagent.com,http://localhost:3000'",
+    "CORS fix correctly implemented - CORS_ORIGINS changed from '*' to specific origins 'https://docflows.preview.emergentagent.com,http://localhost:3000'",
     "Frontend correctly uses credentials: 'include' in API client which requires specific CORS origins (not wildcard)"
   ],
   "updated_files": [

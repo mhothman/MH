@@ -1,47 +1,63 @@
 <analysis>**original_problem_statement:**
-The user's initial request was to implement a comprehensive **Document Approval Workflows** feature as detailed in a Product Requirements Document (PRD). This included creating backend models, services, repositories, and routers, along with corresponding frontend UI for configuration and management.
+The user initially requested a Document Approval Workflows feature. After its completion, subsequent requests included a Documents page, file attachments, a Pending Approvals dashboard widget, and document versioning.
 
-After the initial implementation, the user requested several follow-up features to complete the user experience:
-1.  A dedicated Documents page to list, filter, and manage all documents.
-2.  The ability to attach files to documents.
-3.  A Pending Approvals widget on the main dashboard for quick access.
-4.  Document version history to track changes.
-
-During development, the user reported and the agent fixed:
-- A UI bug where the Documents link was not visible in the sidebar.
-- A file upload bug causing a body has already been consumed error.
-
-Finally, the user requested that the application be prepared for deployment, which involved running a health check, fixing deployment blockers, and updating the project's Node.js version to be compatible with Ubuntu 24 servers.
+Later, the user requested the implementation of a real-time notification system, an upgrade of the MongoDB database from v7 to v8, and then encountered several issues with a fresh deployment on an Ubuntu 24 server. These deployment issues included:
+1.  Broken CSS styling due to missing Tailwind configuration files on the server.
+2.  Excessive  errors from a background polling component.
+3.  The backend service failing to start correctly under the PM2 process manager.
+4.  Missing database indexes causing performance warnings.
+5.  Slow page loading and failed to load errors on multiple pages due to frontend race conditions and redundant API calls.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A full-stack Project Management SaaS (ProFlow) with a robust FastAPI backend and a React frontend. The Document Approval Workflows feature is now fully implemented, both on the backend and frontend. This includes:
-- Backend logic for creating, managing, and enforcing approval workflows.
-- A frontend settings page () for configuring these workflows.
-- A dedicated Documents page with search, filtering, and management capabilities.
-- A document detail view that includes tabs for **Files** (with upload/download/delete functionality) and **Versions** (with snapshot creation).
-- Email notifications (via Resend) for all major approval events (request, approval, rejection).
-- A Pending Approvals widget on the dashboard that shows items awaiting the user's action.
-- The project's Node.js version has been standardized to v22.x via , , and  configurations to ensure deployment compatibility. A  guide with setup instructions is also present.
-- The test suite has been expanded to 164 tests, covering the new document workflow functionality.
+The ProFlow application is a full-stack project management tool with a FastAPI backend and React frontend. Key features like Document Approval Workflows and Real-time Notifications are fully implemented. The application is deployed on an Ubuntu 24 server, connected to a MongoDB 8.0 database.
+
+Most of the critical deployment issues have been resolved:
+- The MongoDB database has been upgraded and all necessary indexes have been created.
+- The Nginx and PM2 configurations on the server have been corrected, and the backend service runs reliably.
+- The frontend build process issues related to missing Tailwind configuration have been diagnosed, and a solution was provided to the user.
+- A basic fix for overly aggressive 401 error handling was implemented.
+
+The most recent work was a major frontend refactoring effort to solve persistent performance and stability problems. This involved creating a global state management solution () and a simple API cache () to prevent duplicate API requests and manage shared data like projects and customers.
 
 **Last working item**:
-    - Last item agent was working: Addressing the user's request to update the project's Node.js version for compatibility with Ubuntu 24. The agent added configuration files to enforce Node.js v22 and created a deployment guide.
-    - Status: NONE
-    - Agent Testing Done: Y
-    - Which testing method agent to use? NA
+    - Last item agent was working: A comprehensive frontend refactor to address slowness and failed to load errors caused by race conditions and redundant API calls. The agent was implementing a global  for shared state and an  utility.
+    - Status: IN PROGRESS
+    - Agent Testing Done: N
+    - Which testing method agent to use? frontend testing agent
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:
-  - There are no known pending issues. The file upload bug and sidebar visibility issues were resolved.
+  - **Issue 1: Application is slow and shows failed to load errors (P0)**: The primary issue is that the application is slow, and navigating between pages like Projects, Customers, and Documents often results in failed to load errors, sometimes leading to an automatic logout. This is caused by frontend race conditions and repeated, unnecessary API calls. The current refactoring effort is aimed at fixing this.
+
+  Issues Detail:
+  - Issue 1: 
+     - Attempted fixes:
+         1.  A smart 401 handler was added to  to prevent instant logout on a single failed request. This was insufficient.
+         2.  An  flag pattern was added to several pages to prevent state updates after a component unmounts. This was also insufficient as it didn't address the root cause of redundant API calls.
+     - Next debug checklist:
+         - The current fix in progress (global state via ) must be completed for all relevant pages.
+         - Verify that CRUD (Create, Read, Update, Delete) operations correctly invalidate the cache and trigger a data refresh in the .
+     - Why fix this issue and what will be achieved with the fix? This is a critical usability issue that makes the application feel broken and unreliable. Fixing it will improve performance, stability, and the overall user experience.
+     - Status:  IN PROGRESS
+     - Is recurring issue? Y
+     - Should Test frontend/backend/both after fix? frontend
+     - Blocked on other issue: None
 
 **In progress Task List**:
-  - There are no tasks currently in progress.
+  - **Task 1: Complete Frontend Refactor for Global State and Caching (P0)**: The agent started a refactor to use a new  and . This work needs to be completed and applied to all relevant pages.
+
+ Task Detail:
+  - Task 1: 
+     - Where to resume: The agent had already created  and . It had also updated , , and . The next step is to continue this pattern, starting with , and then moving on to , , and .
+     - What will be achieved with this? This will centralize data fetching for common resources (projects, customers, etc.), eliminate redundant API calls, improve page load times, and resolve the failed to load race condition errors.
+     - Status:  IN PROGRESS
+     - Should Test frontend/backend/both after fix? frontend
+     - Blocked on something: None
 
 **Upcoming and Future Tasks**
     Upcoming Tasks:
-     - The user mentioned the following potential features after the last fix:
         - **P0: Document Search:** Implement full-text search across document content.
         - **P1: Document Export:** Add functionality to export documents to PDF or Word format.
 
@@ -49,31 +65,19 @@ A full-stack Project Management SaaS (ProFlow) with a robust FastAPI backend and
      - SSO (SAML 2.0)
      - Mobile Application
      - AI-powered task prioritization and recommendations
-     - Real-time notifications for task updates
      - A dedicated dashboard for API metrics and analytics
 
 **Completed work in this session**
-- **Document Approval Workflow (Core):** Implemented backend (router, service, repository, permissions) and frontend (settings UI) for the entire feature.
-- **Document Feature Enhancements:**
-  - **Documents Page:** Created a new page () with list/grid views, search, and filters.
-  - **File Attachments:** Added backend models, repositories, and API endpoints. Updated the frontend  with a Files tab for uploading, viewing, and deleting attachments.
-  - **Document Versioning:** Added backend support and a Versions tab in the UI to create and view document snapshots.
-  - **Dashboard Widget:** Implemented a Pending Approvals widget on the main dashboard.
-  - **Email Notifications:** Integrated the  to send notifications for approval requests, completions, and rejections.
-- **Bug Fixes:**
-  - **File Upload Error:** Resolved a body has already been consumed error in  by fixing token retrieval () and response handling.
-  - **Sidebar Visibility:** Fixed an issue where the Documents navigation item was not appearing by restarting the frontend service.
-  - **API Routing:** Corrected the route order in  to fix a 404 error on the organizational approvals endpoint.
-- **Testing & Quality:**
-  - Added a new test file  with 20 tests.
-  - Increased total test count to **164**.
-  - Ran testing agent successfully three times (, , ).
-  - Fixed  issues across multiple existing test files.
-  - Adjusted rate-limiter settings to accommodate the test suite.
-- **Deployment & Configuration:**
-  - Addressed deployment blockers by cleaning  and updating backend configuration.
-  - Standardized Node.js version to  by adding , , and an  field to .
-  - Created a  guide with instructions for server setup.
+- **Real-time Notifications:** Implemented a full-featured notification system with a dedicated notification center, user preferences, and integration with the task service.
+- **MongoDB v8 Upgrade:** Successfully upgraded the database from v7.0 to v8.0 on the user's server.
+- **Deployment Debugging & Fixing:**
+  - **CSS Build Failure:** Diagnosed that missing  and  on the deployment server were causing an incomplete CSS build. Provided the user with the files and instructions to fix it.
+  - **Backend Service Failure:** Debugged and resolved issues with PM2 failing to start the FastAPI backend service by providing a robust  configuration.
+  - **Database Indexes:** Identified and created all missing MongoDB indexes to resolve performance warnings.
+  - **API 401 Errors:** Patched the frontend to reduce logouts caused by excessive 401 errors from a background timer component.
+- **Performance Optimization (Workflows):** Optimized the Workflows and Documents settings tabs by reducing API calls and adding necessary database indexes.
+- **UI Flicker Fix:** Resolved UI flickering of the organization name and logo by caching branding and organization data in .
+- **Deployment Guidance:** Provided the user with comprehensive guides for both updating an existing server and performing a fresh installation from GitHub.
 
 **Earlier issues found/mentioned but not fixed**
    - None.
@@ -85,67 +89,61 @@ A full-stack Project Management SaaS (ProFlow) with a robust FastAPI backend and
 
 
 **Key Technical Concepts**
-- **Full-Stack Feature Implementation:** The agent built a complete feature spanning the FastAPI backend (models, repository, service, router) and the React frontend (pages, components, API calls).
-- **File Uploads:** Implemented file uploads using  on the frontend and FastAPI's  on the backend, storing files in a designated directory.
-- **API Routing Order:** Resolved a critical bug by reordering FastAPI routes to prevent a generic route () from incorrectly capturing a more specific one ().
-- **Node.js Version Management:** Enforced a specific Node.js version () using , , and the  field in  to ensure deployment consistency.
-- **State Management for UI:** Used React's  and  hooks extensively to manage complex UI states for dialogs, tabs, and data fetching.
+- **Global State Management (React Context):** Introduced  to provide a single source of truth for frequently accessed data (like projects, customers), avoiding prop drilling and redundant API calls across different pages.
+- **API Caching:** Implemented a simple in-memory caching utility () to prevent duplicate network requests for the same data within a short time frame, significantly improving performance during navigation.
+- **Deployment Troubleshooting:** Systematically diagnosed and resolved a series of real-world deployment issues on a user's Ubuntu server, including Nginx configuration errors, frontend build pipeline failures (missing config files), and process manager (PM2) misconfigurations.
+- **Database Indexing and Optimization:** Analyzed application performance warnings to identify and create missing MongoDB indexes. Optimized backend endpoints by aggregating related data (e.g., workflow rules) to reduce the number of client-side API requests (N+1 problem).
 
 **key DB schema**
-- ****: (updated) Added  and  fields.
-- ****: {id, document_id, version_number, content_snapshot, change_summary, created_by, created_at}
-- ****: {id, document_id, file_name, file_path, file_type, file_size, uploaded_by, uploaded_at}
+- ****: {notification_id, user_id, type, message, link, read, created_at}
+- ****: {user_id, preferences: {type: {email, in_app}}}
+- **Indexes Added**: Numerous indexes were added across , , , and  collections to improve query performance and resolve application warnings.
 
 **changes in tech stack**
-- Node.js version was explicitly updated to v22.x for deployment compatibility. No new libraries or frameworks were added.
+- **MongoDB:** Upgraded from v7.0.28 to v8.0.18.
 
 **All files of reference**
--  (Main router for the feature)
--  (Core business logic)
--  (Data access layer)
--  (Main UI for the feature)
--  (UI for details, attachments, versions)
--  (Contains the new widget)
--  (Frontend API calls for the feature)
--  (Deployment instructions)
--  (Node.js version config)
+- **/app/frontend/src/context/AppDataContext.js**: The new global state provider.
+- **/app/frontend/src/utils/apiCache.js**: The new API caching utility.
+- **/app/frontend/src/pages/CustomersPage.jsx**: The next page to be refactored to use .
+- **/app/frontend/src/pages/ProjectsPage.jsx**: Example of a page already refactored.
+- **/app/frontend/src/api/client.js**: Contains the global 401 error handling logic.
 
 **Areas that need refactoring**:
-- None. The code is well-structured and follows existing patterns.
+- **Data Fetching:** The ongoing refactor to move all shared data fetching (projects, customers, documents) from individual pages into  needs to be completed.
 
 **key api endpoints**
-- : CRUD for documents.
-- :  to upload a file.
-- :  to remove a file.
-- :  to create a version snapshot.
-- : CRUD for managing workflows.
-- :  pending approvals for an organization (for admins).
-- :  pending approvals for the current user.
+- : CRUD for notifications.
+- : GET/PUT for user notification settings.
+- : GET available notification types.
+- : (Updated) Now returns workflows with their rules included.
+- : (Updated) Now returns workflows with their rules included.
 
 **Critical Info for New Agent**
-- The Document Approval Workflow feature and its associated enhancements (attachments, versions, dashboard widget) are complete and tested.
-- The file upload functionality was recently debugged and fixed. The key was correcting the  key from  to  and fixing the response body handling in .
-- The project is configured to use Node.js v22.x. Any frontend dependency installations should respect this. See  for environment setup.
-- The next logical steps, as suggested by the agent and aligned with user needs, are to implement full-text search and document export capabilities.
+- The most critical task is to **complete the frontend refactoring** initiated by the previous agent. The application is currently in a partially refactored state. You must continue the pattern of moving data fetching from individual pages (, , etc.) into the new .
+- When refactoring, ensure that any actions that modify data (e.g., creating a new project on ) call the  function from the context to invalidate the cache and update the global state.
+- The user is working with a live deployment on an Ubuntu server. Be mindful that solutions need to work in that environment. Instructions for deployment, updates, and server configuration have been provided and are part of the chat history.
+- The user has been very hands-on with the server-side debugging. Clear, step-by-step shell commands are the most effective way to guide them.
 
 **documents and test reports created in this job**
 - 
 - 
-- 
-- 
-- 
--  (Updated with all completed features)
+-  (Updated)
 
 **Last 10 User Messages and any pending HUMAN messages** 
-- : when deploy to Ubuntu 24 server i get some issue about using node 18 update all node to use latest node version... (COMPLETED)
-- : Call Deployer Agent and Run Health Check to Check for Readiness for Deployment (COMPLETED)
-- : when upload files in documents get error  response.json : body has already been consumed  (COMPLETED - Bug was fixed)
-- : 1- document Page not appear as attached 2- Document file attachments... 3- Pending approvals dashboard widget... 4- Document version history (COMPLETED - Sidebar bug was fixed and all 3 features were implemented)
-- : proceed with implementing the Document Approval Workflows feature as outlined above (COMPLETED)
-- The remaining messages were confirmations to proceed with the agent's plans.
+- : the application is slow and still get failed to load projects , customers and documents  (IN PROGRESS - This is the current active issue being worked on).
+- : same error (COMPLETED - Referring to the failed to load issue, which prompted the current refactor).
+- : when move fast between pages show error failed to load page name , the logout (IN PROGRESS - A symptom of the main performance issue).
+- : when move between dashboard , projects other pages Organization Name change between the name written is settings and Organization word, in deployed server (RESOLVED - Fixed by caching org and branding data in localStorage).
+- : create workflow show Request Failed  also Document Workflow (RESOLVED - Fixed a typo in method names in the backend routers).
+- : in settings , Workflows and Documents tabs take more time to load more than other tabs (RESOLVED - Optimized by reducing API calls and adding DB indexes).
+- : can you use mysql instead of mongodb (REJECTED - Agent advised against it due to high effort).
+- : How to connect to mogodb using mongodb compass (COMPLETED - Agent provided detailed instructions).
+- : now : Index Health 2 Missing 80 indexes active (RESOLVED - All missing indexes were eventually identified and created).
+- : it working now, in performance tab there  Index Health 27 Missing 7 indexes active (RESOLVED - The start of the index creation process).
 
 **Project Health Check:**
-- **Broken:** None.
+- **Broken:** Frontend data fetching logic is in a partially-refactored, inconsistent state. This is causing performance and stability issues.
 - **Mocked:**  (low priority, from a previous fork).
 
 **3rd Party Integrations**
@@ -153,11 +151,11 @@ A full-stack Project Management SaaS (ProFlow) with a robust FastAPI backend and
 - Resend (for emails)
 
 **Testing status**
-  - Testing agent used after significant changes: YES (Used three times for the document feature implementation and enhancements).
+  - Testing agent used after significant changes: YES (For the real-time notification feature).
   - Troubleshoot agent used after agent stuck in loop: NO
   - Test files created:
     - 
-  - Known regressions: None.
+  - Known regressions: Fast page navigation can cause failed to load errors and log the user out.
 
 **Credentials to test flow:**
 | Email | Password | Role |
@@ -167,4 +165,4 @@ A full-stack Project Management SaaS (ProFlow) with a robust FastAPI backend and
 |  |  |  |
 
 **What agent forgot to execute**
-- The agent successfully completed all user requests from the session, including bug fixes, feature implementations, and deployment preparation tasks. Nothing was forgotten.</analysis>
+- The agent was in the middle of a major refactoring task when the session ended. It did not forget anything, but the task is incomplete. The refactoring needs to be applied consistently across all relevant pages.</analysis>

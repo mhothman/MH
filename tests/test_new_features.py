@@ -11,7 +11,7 @@ import io
 import time
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://approvalmate-3.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://docflows.preview.emergentagent.com')
 
 # Generate unique test user for each test run
 UNIQUE_ID = uuid.uuid4().hex[:8]

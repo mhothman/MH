@@ -3,7 +3,7 @@ Locust Load Testing Configuration for ProFlow
 Run with: locust -f tests/locustfile.py --host=<BACKEND_URL>
 
 Example:
-  locust -f tests/locustfile.py --host=https://approvalmate-3.preview.emergentagent.com
+  locust -f tests/locustfile.py --host=https://docflows.preview.emergentagent.com
 
 Then open http://localhost:8089 for the Locust web interface.
 """
