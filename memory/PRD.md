@@ -691,6 +691,34 @@ Benefits:
     - Advanced preferences UI in Settings > Preferences
   - **Testing:** 19/19 backend tests passing (`test_notifications.py`), full frontend UI verified
   - **Test Report:** `/app/test_reports/iteration_39.json`
+- **2026-01-29**: Project Budget Management Module - COMPLETED ✅
+  - **Features Implemented:**
+    - **Budget Creation & Management:** Define project budgets with USD/EGP currency selection
+    - **Real-time Tracking:** Calculate spend from time entries (using billable rates), expenses, and manual adjustments
+    - **Budget Status:** Active, Warning (at threshold), Exceeded (100%), Locked (hard limit)
+    - **Alerts & Notifications:** Warning at configurable threshold, exceeded alerts via in-app + email
+    - **Hard Limit Control:** Optional blocking of operations when budget exceeded
+    - **Expense Tracking:** Full CRUD for expenses integrated with documents (receipts/invoices)
+    - **Billable Rates:** Configurable hourly rates per user/project/org
+    - **Revision History:** Track all budget changes with audit trail
+  - **Backend:**
+    - `models/budget.py`: Budget, Transaction, Expense, BillableRate models
+    - `services/budget_service.py`: Business logic with calculations and notifications
+    - `routers/budget_router.py`: REST API endpoints
+    - Permissions added: BUDGET_VIEW/CREATE/EDIT/DELETE/APPROVE/OVERRIDE, EXPENSE_VIEW/CREATE/EDIT/DELETE/APPROVE
+  - **Frontend:**
+    - `api/budgets.js`: API client with formatCurrency, getCurrencySymbol helpers
+    - `components/budget/ProjectBudgetTab.jsx`: Full budget UI with sub-tabs
+    - Budget tab added to ProjectDetailPage with URL parameter support (?tab=budget)
+  - **UI Features:**
+    - Summary cards: Total Budget, Spent, Remaining, Status
+    - Progress bar with warning threshold indicator
+    - Sub-tabs: Overview (cost breakdown), Expenses, Transactions, History
+    - Create/Edit budget dialogs with currency selection
+    - Add Expense with document attachment
+    - Manual transaction entry
+  - **Testing:** 100% success rate (23 backend + all frontend tests passed)
+  - **Test Report:** `/app/test_reports/iteration_42.json`
 - **2026-01-29**: Mandatory Date Fields for Projects and Tasks - COMPLETED ✅
   - **Requirement:** Start date and end date are now mandatory fields for both Projects and Tasks
   - **Features Implemented:**
