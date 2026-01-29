@@ -22,6 +22,7 @@ import {
   bulkDeleteTasks,
 } from "../api/tasks";
 import { getComments, createComment } from "../api/comments";
+import { getDocuments } from "../api/documents";
 import {
   BulkTaskActions,
   TaskDetailDialog,
@@ -30,6 +31,7 @@ import {
   CreateTaskDialog,
   ProjectSettingsDialog,
 } from "../components/tasks";
+import { ProjectBudgetTab } from "../components/budget/ProjectBudgetTab";
 import { Button } from "../components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { LoadingSpinner } from "../components/ui/loading-spinner";
@@ -43,6 +45,7 @@ import {
   Settings,
   Network,
   CalendarClock,
+  Wallet,
 } from "lucide-react";
 import { format, isValid } from "date-fns";
 
