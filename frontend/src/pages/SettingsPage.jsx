@@ -96,10 +96,27 @@ export default function SettingsPage() {
   const [presetThemes, setPresetThemes] = useState([]);
 
   useEffect(() => {
-    loadOrganizations();
-    loadAllPermissions();
+    let isMounted = true;
+    
+    const initLoad = async () => {
+      try {
+        await Promise.all([
+          loadOrganizations(),
+          loadAllPermissions(),
+        ]);
+      } catch (e) {
+        if (!isMounted) return;
+        console.error("Failed to initialize settings:", e);
+      }
+    };
+    
+    initLoad();
     loadPresetFonts();
     loadPresetThemes();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const loadPresetFonts = async () => {
