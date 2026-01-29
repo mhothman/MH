@@ -57,13 +57,23 @@ import {
   Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
+import { useAppData } from "../context/AppDataContext";
 
 export default function ProjectsPage() {
   const navigate = useNavigate();
+  const { 
+    projects: globalProjects, 
+    organizations, 
+    customers: globalCustomers,
+    permissions: globalPermissions,
+    currentOrgId,
+    loadProjects,
+    loadCustomers,
+    setProjects: setGlobalProjects,
+    projectsLoading 
+  } = useAppData();
+  
   const [loading, setLoading] = useState(true);
-  const [projects, setProjects] = useState([]);
-  const [organizations, setOrganizations] = useState([]);
-  const [customers, setCustomers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("grid");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -79,7 +89,11 @@ export default function ProjectsPage() {
     color: "#3B82F6",
     customer_id: "none",
   });
-  const [permissions, setPermissions] = useState([]);
+  
+  // Use global data
+  const projects = globalProjects;
+  const customers = globalCustomers;
+  const permissions = globalPermissions;
   
   // Permission check helper
   const canDo = (permission) => hasPermission(permissions, permission);
@@ -89,37 +103,16 @@ export default function ProjectsPage() {
     
     const loadData = async () => {
       try {
-        const [projectsData, orgsData] = await Promise.all([
-          getProjects(),
-          getOrganizations(),
+        // Load from global context
+        await Promise.all([
+          loadProjects(),
+          currentOrgId ? loadCustomers(currentOrgId) : Promise.resolve(),
         ]);
         
         if (!isMounted) return;
-        
-        setProjects(projectsData);
-        setOrganizations(orgsData);
-        
-        // Load customers and permissions if org exists
-        if (orgsData.length > 0) {
-          const customersData = await getCustomers(orgsData[0].org_id);
-          
-          if (!isMounted) return;
-          setCustomers(customersData);
-          
-          // Load permissions
-          try {
-            const permData = await getMyPermissions(orgsData[0].org_id);
-            if (!isMounted) return;
-            setPermissions(permData.permissions || []);
-          } catch (e) {
-            if (!isMounted) return;
-            setPermissions([]);
-          }
-        }
       } catch (error) {
         if (!isMounted) return;
         console.error("Failed to load projects:", error);
-        toast.error("Failed to load projects");
       } finally {
         if (isMounted) {
           setLoading(false);
