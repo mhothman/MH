@@ -165,6 +165,25 @@ class TaskUpdate(BaseModel):
         if v is not None and v < 0:
             raise ValueError('Estimated hours cannot be negative')
         return v
+    
+    @field_validator('start_date', 'due_date')
+    @classmethod
+    def validate_date_format(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v.strip():
+            try:
+                datetime.strptime(v, '%Y-%m-%d')
+            except ValueError:
+                raise ValueError('Invalid date format. Must be YYYY-MM-DD')
+        return v
+    
+    @model_validator(mode='after')
+    def validate_dates(self):
+        if self.start_date and self.due_date:
+            start = datetime.strptime(self.start_date, '%Y-%m-%d')
+            end = datetime.strptime(self.due_date, '%Y-%m-%d')
+            if end < start:
+                raise ValueError('Due date must be after or equal to start date')
+        return self
 
 class TaskResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
