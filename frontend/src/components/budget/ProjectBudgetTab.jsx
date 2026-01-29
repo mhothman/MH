@@ -115,7 +115,7 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
   
   const [budgetForm, setBudgetForm] = useState({
     total_budget: "",
-    currency: "USD",
+    currency: "EGP",
     warning_threshold_percent: 80,
     hard_limit: false,
     notes: "",
@@ -124,7 +124,7 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
   const [expenseForm, setExpenseForm] = useState({
     title: "",
     amount: "",
-    currency: "USD",
+    currency: "EGP",
     category: "general",
     date: format(new Date(), "yyyy-MM-dd"),
     description: "",
