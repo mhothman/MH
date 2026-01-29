@@ -85,38 +85,54 @@ export default function ProjectsPage() {
   const canDo = (permission) => hasPermission(permissions, permission);
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      const [projectsData, orgsData] = await Promise.all([
-        getProjects(),
-        getOrganizations(),
-      ]);
-      setProjects(projectsData);
-      setOrganizations(orgsData);
-      
-      // Load customers and permissions if org exists
-      if (orgsData.length > 0) {
-        const customersData = await getCustomers(orgsData[0].org_id);
-        setCustomers(customersData);
+    let isMounted = true;
+    
+    const loadData = async () => {
+      try {
+        const [projectsData, orgsData] = await Promise.all([
+          getProjects(),
+          getOrganizations(),
+        ]);
         
-        // Load permissions
-        try {
-          const permData = await getMyPermissions(orgsData[0].org_id);
-          setPermissions(permData.permissions || []);
-        } catch (e) {
-          setPermissions([]);
+        if (!isMounted) return;
+        
+        setProjects(projectsData);
+        setOrganizations(orgsData);
+        
+        // Load customers and permissions if org exists
+        if (orgsData.length > 0) {
+          const customersData = await getCustomers(orgsData[0].org_id);
+          
+          if (!isMounted) return;
+          setCustomers(customersData);
+          
+          // Load permissions
+          try {
+            const permData = await getMyPermissions(orgsData[0].org_id);
+            if (!isMounted) return;
+            setPermissions(permData.permissions || []);
+          } catch (e) {
+            if (!isMounted) return;
+            setPermissions([]);
+          }
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        console.error("Failed to load projects:", error);
+        toast.error("Failed to load projects");
+      } finally {
+        if (isMounted) {
+          setLoading(false);
         }
       }
-    } catch (error) {
-      console.error("Failed to load projects:", error);
-      toast.error("Failed to load projects");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    
+    loadData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleCreateProject = async () => {
     if (!newProject.name.trim()) {
