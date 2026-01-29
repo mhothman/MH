@@ -1002,12 +1002,12 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
                   <FileText className="w-4 h-4" />
                   Attach Document (Receipt/Invoice)
                 </Label>
-                <Select value={expenseForm.document_id} onValueChange={(value) => setExpenseForm({ ...expenseForm, document_id: value })}>
+                <Select value={expenseForm.document_id || "none"} onValueChange={(value) => setExpenseForm({ ...expenseForm, document_id: value === "none" ? "" : value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select document (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {documents.map((doc) => (
                       <SelectItem key={doc.document_id} value={doc.document_id}>{doc.title}</SelectItem>
                     ))}
