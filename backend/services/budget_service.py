@@ -287,6 +287,9 @@ class BudgetService:
         if not budget:
             raise ValueError("Budget not found")
         
+        # Get the old spent_percent before recalculation
+        old_spent_percent = budget.get("spent_percent", 0)
+        
         # Sum all transactions
         pipeline = [
             {"$match": {"budget_id": budget_id}},
@@ -324,6 +327,10 @@ class BudgetService:
         # Send notifications on status change
         if old_status != new_status:
             await self._send_budget_notification(budget_id, old_status, new_status)
+        
+        # Send 50% threshold notification (only once, when crossing from below 50% to above 50%)
+        if old_spent_percent < 50 and spent_percent >= 50:
+            await self._send_fifty_percent_notification(budget_id, spent_percent)
         
         return await self.get_budget(budget_id)
     
