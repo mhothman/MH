@@ -698,12 +698,14 @@ Benefits:
     - Form validation: Prevents submission until dates are filled
     - Date range validation: End date must be after or equal to start date
     - Visual indicator: Red asterisk (*) shows required fields
+    - **Edit dialogs now show date fields** with existing values pre-populated
   - **Backend Changes:**
     - `models/project.py`: ProjectCreate requires `start_date` and `end_date` with model_validator
     - `models/task.py`: TaskCreate requires `start_date` and `due_date` with model_validator
   - **Frontend Changes:**
-    - `ProjectsPage.jsx`: Added date inputs with validation in handleCreateProject/handleUpdateProject
-    - `CreateTaskDialog.jsx`: Added date inputs with validation in handleSubmit
+    - `ProjectsPage.jsx`: Added date inputs with validation in create/edit dialog
+    - `CreateTaskDialog.jsx`: Added date inputs with validation
+    - `TaskDetailDialog.jsx`: Added editable Start Date and Due Date fields in task detail view
   - **Bug Fixed:** ProjectDetailPage.jsx was converting dates to ISO format instead of YYYY-MM-DD
   - **Testing:** 100% success rate (14/14 tests passed)
   - **Test Report:** `/app/test_reports/iteration_41.json`
