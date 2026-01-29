@@ -27,8 +27,8 @@ class ProjectCreate(BaseModel):
     description: Optional[str] = None
     status: str = "planned"
     color: str = "#3B82F6"
-    start_date: Optional[str] = None
-    end_date: Optional[str] = None
+    start_date: str  # Required - YYYY-MM-DD format
+    end_date: str    # Required - YYYY-MM-DD format
     customer_id: Optional[str] = None
     task_statuses: Optional[List[Dict[str, Any]]] = None
     
@@ -61,6 +61,28 @@ class ProjectCreate(BaseModel):
         if not HEX_COLOR_PATTERN.match(v):
             raise ValueError('Invalid color format. Must be a valid hex color (e.g., #3B82F6)')
         return v.upper()
+    
+    @field_validator('start_date', 'end_date')
+    @classmethod
+    def validate_date_format(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError('Date is required')
+        try:
+            from datetime import datetime
+            datetime.strptime(v, '%Y-%m-%d')
+        except ValueError:
+            raise ValueError('Invalid date format. Must be YYYY-MM-DD')
+        return v
+    
+    @model_validator(mode='after')
+    def validate_dates(self):
+        from datetime import datetime
+        if self.start_date and self.end_date:
+            start = datetime.strptime(self.start_date, '%Y-%m-%d')
+            end = datetime.strptime(self.end_date, '%Y-%m-%d')
+            if end < start:
+                raise ValueError('End date must be after or equal to start date')
+        return self
 
 
 class ProjectUpdate(BaseModel):
