@@ -8,6 +8,11 @@ from core.database import get_database
 
 logger = logging.getLogger(__name__)
 
+# Import budget service for cost tracking (avoid circular import)
+def get_budget_service():
+    from services.budget_service import budget_service
+    return budget_service
+
 
 class TimeService:
     """Service for time tracking business logic"""
