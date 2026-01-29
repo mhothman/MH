@@ -900,6 +900,47 @@ class BudgetService:
     
     # ==================== Notifications ====================
     
+    async def _send_fifty_percent_notification(
+        self,
+        budget_id: str,
+        spent_percent: float
+    ):
+        """Send notification when budget reaches 50% threshold"""
+        db = get_database()
+        
+        budget = await self.get_budget(budget_id)
+        if not budget:
+            return
+        
+        project = await db.projects.find_one(
+            {"project_id": budget["project_id"]},
+            {"_id": 0, "name": 1}
+        )
+        project_name = project["name"] if project else "Unknown"
+        
+        title = "Budget 50% Alert"
+        message = f"Project '{project_name}' has reached {spent_percent:.1f}% of its budget. Half of the budget has been consumed."
+        notification_type = "budget_fifty_percent"
+        
+        # Get project managers and org admins to notify
+        memberships = await db.org_memberships.find({
+            "org_id": budget["org_id"],
+            "role": {"$in": ["org_admin", "super_admin", "project_manager"]}
+        }, {"_id": 0, "user_id": 1}).to_list(100)
+        
+        for member in memberships:
+            await notification_service.create_notification(
+                user_id=member["user_id"],
+                notification_type=notification_type,
+                title=title,
+                message=message,
+                link=f"/projects/{budget['project_id']}?tab=budget",
+                org_id=budget["org_id"],
+                send_email=True
+            )
+        
+        logger.info(f"Sent 50% budget notification for budget {budget_id} to {len(memberships)} users")
+    
     async def _send_budget_notification(
         self,
         budget_id: str,
