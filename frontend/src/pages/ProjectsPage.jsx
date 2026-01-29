@@ -397,6 +397,38 @@ export default function ProjectsPage() {
                 </Select>
               </div>
 
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="project-start-date" className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Start Date <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="project-start-date"
+                    type="date"
+                    value={newProject.start_date}
+                    onChange={(e) => setNewProject({ ...newProject, start_date: e.target.value })}
+                    data-testid="project-start-date-input"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="project-end-date" className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    End Date <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="project-end-date"
+                    type="date"
+                    value={newProject.end_date}
+                    min={newProject.start_date}
+                    onChange={(e) => setNewProject({ ...newProject, end_date: e.target.value })}
+                    data-testid="project-end-date-input"
+                    required
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Building2 className="w-4 h-4" />
