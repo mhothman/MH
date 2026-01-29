@@ -27,6 +27,12 @@ class NotificationType(str, Enum):
     PROJECT_STATUS_CHANGED = "project_status_changed"
     PROJECT_MILESTONE_REACHED = "project_milestone_reached"
     
+    # Budget events
+    BUDGET_FIFTY_PERCENT = "budget_fifty_percent"
+    BUDGET_WARNING = "budget_warning"
+    BUDGET_EXCEEDED = "budget_exceeded"
+    BUDGET_LOCKED = "budget_locked"
+    
     # Approval workflow events
     APPROVAL_REQUESTED = "approval_requested"
     APPROVAL_APPROVED = "approval_approved"
