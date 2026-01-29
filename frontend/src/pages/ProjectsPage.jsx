@@ -200,7 +200,7 @@ export default function ProjectsPage() {
       }
       
       await updateProject(editingProject.project_id, projectData);
-      setProjects(projects.map(p => 
+      setGlobalProjects(projects.map(p => 
         p.project_id === editingProject.project_id 
           ? { ...p, ...projectData }
           : p
@@ -221,7 +221,7 @@ export default function ProjectsPage() {
     
     try {
       await deleteProject(projectToDelete.project_id);
-      setProjects(projects.filter(p => p.project_id !== projectToDelete.project_id));
+      setGlobalProjects(projects.filter(p => p.project_id !== projectToDelete.project_id));
       setDeleteDialogOpen(false);
       setProjectToDelete(null);
       toast.success("Project deleted successfully");
