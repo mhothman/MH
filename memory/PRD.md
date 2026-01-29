@@ -299,6 +299,13 @@ Benefits:
 - [x] ~~Performance & Edge Case Tests~~ ✅ COMPLETED (January 27, 2026) - 118 tests total
 - [x] ~~Real-time Notifications~~ ✅ COMPLETED (January 27, 2026)
 
+### P0 - Critical (COMPLETED)
+- [x] Frontend Global State Refactoring - Fixed slowness and "failed to load" errors (Jan 29, 2026)
+
+### P0 - Upcoming
+- [ ] **Document Search:** Implement full-text search across document content
+- [ ] **Document Export:** Add PDF/Word export functionality
+
 ### P1 - High Priority (Next)
 - [ ] Document Search - Full-text search across document content
 - [ ] Document Export - PDF/Word export functionality
