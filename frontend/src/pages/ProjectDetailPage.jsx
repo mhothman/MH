@@ -102,6 +102,12 @@ export default function ProjectDetailPage() {
       const task = tasks.find((t) => t.task_id === taskIdFromUrl);
       if (task) openTaskDetail(task);
     }
+    
+    // Handle tab parameter from URL
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl && ["kanban", "list", "timeline", "dependencies", "budget"].includes(tabFromUrl)) {
+      setViewMode(tabFromUrl);
+    }
   }, [searchParams, tasks]);
 
   const loadData = async () => {
