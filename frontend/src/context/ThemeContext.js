@@ -41,8 +41,18 @@ export const ThemeProvider = ({ children }) => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
-  // Organization branding
-  const [branding, setBranding] = useState(DEFAULT_BRANDING);
+  // Organization branding - initialize from localStorage if available
+  const [branding, setBranding] = useState(() => {
+    const saved = localStorage.getItem('proflow_branding');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return DEFAULT_BRANDING;
+      }
+    }
+    return DEFAULT_BRANDING;
+  });
   const [brandingLoading, setBrandingLoading] = useState(false);
   
   // Refs for dynamic style elements
