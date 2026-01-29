@@ -88,6 +88,7 @@ export default function ProjectDetailPage() {
   const [taskStatuses, setTaskStatuses] = useState(DEFAULT_STATUSES);
   const [selectedTaskIds, setSelectedTaskIds] = useState([]);
   const [permissions, setPermissions] = useState([]);
+  const [projectDocuments, setProjectDocuments] = useState([]);
 
   const canDo = (permission) => hasPermission(permissions, permission);
 
