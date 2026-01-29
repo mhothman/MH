@@ -696,7 +696,10 @@ Benefits:
     - **Budget Creation & Management:** Define project budgets with USD/EGP currency selection
     - **Real-time Tracking:** Calculate spend from time entries (using billable rates), expenses, and manual adjustments
     - **Budget Status:** Active, Warning (at threshold), Exceeded (100%), Locked (hard limit)
-    - **Alerts & Notifications:** Warning at configurable threshold, exceeded alerts via in-app + email
+    - **Alerts & Notifications:** 
+      - **50% threshold notification** (to project managers & org admins) - in-app + email
+      - Warning at configurable threshold (default 80%)
+      - Exceeded alerts at 100%
     - **Hard Limit Control:** Optional blocking of operations when budget exceeded
     - **Expense Tracking:** Full CRUD for expenses integrated with documents (receipts/invoices)
     - **Billable Rates:** Configurable hourly rates per user/project/org
@@ -706,10 +709,13 @@ Benefits:
     - `services/budget_service.py`: Business logic with calculations and notifications
     - `routers/budget_router.py`: REST API endpoints
     - Permissions added: BUDGET_VIEW/CREATE/EDIT/DELETE/APPROVE/OVERRIDE, EXPENSE_VIEW/CREATE/EDIT/DELETE/APPROVE
+    - Notification types added: BUDGET_FIFTY_PERCENT, BUDGET_WARNING, BUDGET_EXCEEDED, BUDGET_LOCKED
   - **Frontend:**
     - `api/budgets.js`: API client with formatCurrency, getCurrencySymbol helpers
     - `components/budget/ProjectBudgetTab.jsx`: Full budget UI with sub-tabs
     - Budget tab added to ProjectDetailPage with URL parameter support (?tab=budget)
+  - **Bug Fixes:**
+    - Fixed expense creation showing "request failed" but item being added (race condition in data reload)
   - **UI Features:**
     - Summary cards: Total Budget, Spent, Remaining, Status
     - Progress bar with warning threshold indicator
