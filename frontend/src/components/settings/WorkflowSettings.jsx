@@ -191,11 +191,17 @@ export function WorkflowSettings({ orgId, canManageWorkflows = false }) {
   };
 
   const selectWorkflow = async (workflowId) => {
-    try {
-      const fullWorkflow = await getWorkflow(workflowId);
-      setSelectedWorkflow(fullWorkflow);
-    } catch (error) {
-      toast.error("Failed to load workflow details");
+    // Find workflow from loaded list (already has rules)
+    const workflow = workflows.find(w => w.workflow_id === workflowId);
+    if (workflow) {
+      setSelectedWorkflow(workflow);
+    } else {
+      try {
+        const fullWorkflow = await getWorkflow(workflowId);
+        setSelectedWorkflow(fullWorkflow);
+      } catch (error) {
+        toast.error("Failed to load workflow details");
+      }
     }
   };
 
