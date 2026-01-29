@@ -164,6 +164,12 @@ ROLE_PERMISSIONS: Dict[str, List[str]] = {
         # Document permissions
         Permission.DOCUMENT_VIEW, Permission.DOCUMENT_CREATE, Permission.DOCUMENT_EDIT,
         Permission.DOCUMENT_DELETE, Permission.DOCUMENT_CHANGE_STATUS, Permission.DOCUMENT_APPROVE,
+        # Budget permissions - Org Admin can manage budgets
+        Permission.BUDGET_VIEW, Permission.BUDGET_CREATE, Permission.BUDGET_EDIT,
+        Permission.BUDGET_DELETE, Permission.BUDGET_APPROVE,
+        # Expense permissions
+        Permission.EXPENSE_VIEW, Permission.EXPENSE_CREATE, Permission.EXPENSE_EDIT,
+        Permission.EXPENSE_DELETE, Permission.EXPENSE_APPROVE,
     ],
     
     "project_manager": [
