@@ -477,7 +477,7 @@ async def get_document_workflows(
     # Enrich with rule counts and optionally rules
     for wf in workflows:
         if include_rules:
-            rules = await document_workflow_repository.get_rules_by_workflow(wf["workflow_id"])
+            rules = await document_workflow_repository.find_rules_by_workflow(wf["workflow_id"])
             wf["rules"] = rules
             wf["rules_count"] = len(rules)
         else:
