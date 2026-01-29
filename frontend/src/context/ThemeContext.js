@@ -214,6 +214,7 @@ export const ThemeProvider = ({ children }) => {
   // Reset to default branding
   const resetTheme = useCallback(() => {
     setBranding(DEFAULT_BRANDING);
+    localStorage.removeItem('proflow_branding');
     applyFullBranding(DEFAULT_BRANDING);
   }, [applyFullBranding]);
 
