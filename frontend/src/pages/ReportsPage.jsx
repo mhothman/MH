@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getOrganizations, getMyPermissions, hasPermission, Permission } from "../api";
-import { getProjects } from "../api/projects";
+import { hasPermission, Permission } from "../api";
+import { useAppData } from "../context/AppDataContext";
 import { exportTasksReport, exportTimeReport } from "../api/reports";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
@@ -22,16 +22,25 @@ import { FileJson, FileSpreadsheet, BarChart3, Clock, CalendarDays, Users } from
 import { format, subDays } from "date-fns";
 
 export default function ReportsPage() {
+  const {
+    organizations,
+    projects: globalProjects,
+    permissions: globalPermissions,
+    currentOrgId,
+    loadProjects,
+  } = useAppData();
+  
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
-  const [organizations, setOrganizations] = useState([]);
-  const [projects, setProjects] = useState([]);
   const [selectedOrg, setSelectedOrg] = useState(null);
   const [selectedProject, setSelectedProject] = useState("all");
   const [taskStatus, setTaskStatus] = useState("all");
   const [startDate, setStartDate] = useState(format(subDays(new Date(), 30), "yyyy-MM-dd"));
   const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [permissions, setPermissions] = useState([]);
+
+  // Use global data
+  const projects = globalProjects;
+  const permissions = globalPermissions;
 
   // Permission check helper
   const canDo = (permission) => hasPermission(permissions, permission);
@@ -41,15 +50,18 @@ export default function ReportsPage() {
     
     const loadData = async () => {
       try {
-        const orgs = await getOrganizations();
+        // Load projects from global context
+        await loadProjects();
+        
         if (!isMounted) return;
-        setOrganizations(orgs);
-        if (orgs.length > 0) {
-          setSelectedOrg(orgs[0].org_id);
+        
+        // Set initial org if available
+        if (currentOrgId) {
+          setSelectedOrg(currentOrgId);
         }
       } catch (error) {
         if (!isMounted) return;
-        console.error("Failed to load organizations:", error);
+        console.error("Failed to load data:", error);
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -62,53 +74,9 @@ export default function ReportsPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [currentOrgId, loadProjects]);
 
-  useEffect(() => {
-    let isMounted = true;
-    
-    const loadOrgData = async () => {
-      if (!selectedOrg) return;
-      
-      try {
-        const [projs, permData] = await Promise.all([
-          getProjects(selectedOrg),
-          getMyPermissions(selectedOrg).catch(() => ({ permissions: [] })),
-        ]);
-        
-        if (!isMounted) return;
-        setProjects(projs);
-        setPermissions(permData.permissions || []);
-      } catch (error) {
-        if (!isMounted) return;
-        console.error("Failed to load org data:", error);
-      }
-    };
-    
-    loadOrgData();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedOrg]);
-
-  const loadProjects = async (orgId) => {
-    try {
-      const projs = await getProjects(orgId);
-      setProjects(projs);
-    } catch (error) {
-      console.error("Failed to load projects:", error);
-    }
-  };
-
-  const loadPermissions = async (orgId) => {
-    try {
-      const data = await getMyPermissions(orgId);
-      setPermissions(data.permissions || []);
-    } catch (e) {
-      setPermissions([]);
-    }
-  };
+  // Remove the duplicate useEffect for org data loading since we use global context now
 
   const downloadBlob = (blob, filename) => {
     const url = URL.createObjectURL(blob);

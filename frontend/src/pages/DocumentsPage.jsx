@@ -185,7 +185,7 @@ export default function DocumentsPage() {
       return;
     }
 
-    if (!currentOrg) {
+    if (!currentOrgId) {
       toast.error("No organization selected");
       return;
     }
@@ -203,7 +203,7 @@ export default function DocumentsPage() {
         docData.project_id = newDocument.project_id;
       }
 
-      const created = await createDocument(currentOrg.org_id, docData);
+      const created = await createDocument(currentOrgId, docData);
       setDocuments([created, ...documents]);
       setDialogOpen(false);
       setNewDocument({ title: "", description: "", document_type: "other", project_id: "none", tags: "" });
