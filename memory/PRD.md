@@ -691,6 +691,22 @@ Benefits:
     - Advanced preferences UI in Settings > Preferences
   - **Testing:** 19/19 backend tests passing (`test_notifications.py`), full frontend UI verified
   - **Test Report:** `/app/test_reports/iteration_39.json`
+- **2026-01-29**: Mandatory Date Fields for Projects and Tasks - COMPLETED ✅
+  - **Requirement:** Start date and end date are now mandatory fields for both Projects and Tasks
+  - **Features Implemented:**
+    - Default dates: Today for start, 10 days from now for end
+    - Form validation: Prevents submission until dates are filled
+    - Date range validation: End date must be after or equal to start date
+    - Visual indicator: Red asterisk (*) shows required fields
+  - **Backend Changes:**
+    - `models/project.py`: ProjectCreate requires `start_date` and `end_date` with model_validator
+    - `models/task.py`: TaskCreate requires `start_date` and `due_date` with model_validator
+  - **Frontend Changes:**
+    - `ProjectsPage.jsx`: Added date inputs with validation in handleCreateProject/handleUpdateProject
+    - `CreateTaskDialog.jsx`: Added date inputs with validation in handleSubmit
+  - **Bug Fixed:** ProjectDetailPage.jsx was converting dates to ISO format instead of YYYY-MM-DD
+  - **Testing:** 100% success rate (14/14 tests passed)
+  - **Test Report:** `/app/test_reports/iteration_41.json`
 - **2026-01-29**: Frontend Global State Refactoring - COMPLETED ✅
   - **Problem:** Application was slow and showed "failed to load" errors when navigating fast between pages (Projects, Customers, Documents). This was caused by race conditions from redundant API calls. Sometimes it would trigger automatic logout.
   - **Solution:** Implemented global state management using React Context (`AppDataContext`) and API caching (`apiCache.js`).
