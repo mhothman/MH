@@ -38,7 +38,7 @@ class ProjectBudgetCreate(BaseModel):
     """Model for creating a project budget"""
     project_id: str
     total_budget: float = Field(..., gt=0, description="Total budget amount")
-    currency: str = "USD"
+    currency: str = "EGP"
     warning_threshold_percent: float = Field(default=80.0, ge=0, le=100)
     hard_limit: bool = False  # If true, block operations when exceeded
     notes: Optional[str] = None
@@ -216,7 +216,7 @@ class ExpenseCreate(BaseModel):
     project_id: str
     title: str = Field(..., min_length=1, max_length=200)
     amount: float = Field(..., gt=0)
-    currency: str = "USD"
+    currency: str = "EGP"
     category: str = "general"
     date: str  # YYYY-MM-DD
     description: Optional[str] = None
@@ -343,7 +343,7 @@ class BillableRateCreate(BaseModel):
     user_id: Optional[str] = None  # If null, applies to org default
     project_id: Optional[str] = None  # If null, applies to all projects
     hourly_rate: float = Field(..., ge=0)
-    currency: str = "USD"
+    currency: str = "EGP"
     effective_from: Optional[str] = None  # YYYY-MM-DD
     
     @field_validator('hourly_rate')
