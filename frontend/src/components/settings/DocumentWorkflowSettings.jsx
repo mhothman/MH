@@ -209,25 +209,19 @@ export function DocumentWorkflowSettings({ orgId, canManageWorkflows = false }) 
       setLoading(false);
     }
   };
-      
-      // Auto-select the first workflow if any
-      if (workflowsData.length > 0) {
-        const fullWorkflow = await getDocumentWorkflow(workflowsData[0].workflow_id);
-        setSelectedWorkflow(fullWorkflow);
-      }
-    } catch (error) {
-      toast.error("Failed to load document workflows");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const selectWorkflow = async (workflowId) => {
-    try {
-      const fullWorkflow = await getDocumentWorkflow(workflowId);
-      setSelectedWorkflow(fullWorkflow);
-    } catch (error) {
-      toast.error("Failed to load workflow details");
+    // Find workflow from loaded list (already has rules)
+    const workflow = workflows.find(w => w.workflow_id === workflowId);
+    if (workflow) {
+      setSelectedWorkflow(workflow);
+    } else {
+      try {
+        const fullWorkflow = await getDocumentWorkflow(workflowId);
+        setSelectedWorkflow(fullWorkflow);
+      } catch (error) {
+        toast.error("Failed to load workflow details");
+      }
     }
   };
 
