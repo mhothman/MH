@@ -297,6 +297,27 @@ class TimeService:
             {"$set": update_data}
         )
         
+        # Update budget cost if duration changed
+        if duration_minutes != old_minutes:
+            try:
+                # Get task to find project_id
+                task = await db.tasks.find_one({"task_id": entry["task_id"]}, {"_id": 0, "project_id": 1})
+                if task:
+                    budget_service = get_budget_service()
+                    # Remove old cost
+                    await budget_service.remove_time_entry_cost(entry_id)
+                    # Add new cost
+                    await budget_service.process_time_entry_cost(
+                        org_id=entry["org_id"],
+                        project_id=task["project_id"],
+                        task_id=entry["task_id"],
+                        user_id=entry["user_id"],
+                        duration_minutes=duration_minutes,
+                        time_entry_id=entry_id
+                    )
+            except Exception as e:
+                logger.warning(f"Failed to update budget cost for time entry {entry_id}: {e}")
+        
         # Update task's actual hours
         await db.tasks.update_one(
             {"task_id": entry["task_id"]},
