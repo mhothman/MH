@@ -4,8 +4,8 @@
  */
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getOrganizations, getMyPermissions, hasPermission, Permission } from "../api";
-import { getProjects } from "../api/projects";
+import { hasPermission, Permission } from "../api";
+import { useAppData } from "../context/AppDataContext";
 import {
   getDocuments,
   createDocument,
@@ -111,11 +111,17 @@ const DOCUMENT_STATUSES = [
 
 export default function DocumentsPage() {
   const navigate = useNavigate();
+  const {
+    projects: globalProjects,
+    organizations,
+    permissions: globalPermissions,
+    currentOrg,
+    currentOrgId,
+    loadProjects,
+  } = useAppData();
+  
   const [loading, setLoading] = useState(true);
   const [documents, setDocuments] = useState([]);
-  const [organizations, setOrganizations] = useState([]);
-  const [currentOrg, setCurrentOrg] = useState(null);
-  const [projects, setProjects] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("list");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -134,40 +140,44 @@ export default function DocumentsPage() {
     project_id: "none",
     tags: "",
   });
-  const [permissions, setPermissions] = useState([]);
+
+  // Use global data
+  const projects = globalProjects.filter((p) => p.org_id === currentOrgId);
+  const permissions = globalPermissions;
 
   const canDo = (permission) => hasPermission(permissions, permission);
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      const orgsData = await getOrganizations();
-      setOrganizations(orgsData);
-
-      if (orgsData.length > 0) {
-        const org = orgsData[0];
-        setCurrentOrg(org);
-
-        const [docsData, projectsData, permData] = await Promise.all([
-          getDocuments(org.org_id),
-          getProjects(),
-          getMyPermissions(org.org_id).catch(() => ({ permissions: [] })),
-        ]);
-
-        setDocuments(docsData);
-        setProjects(projectsData.filter((p) => p.org_id === org.org_id));
-        setPermissions(permData.permissions || []);
+    let isMounted = true;
+    
+    const loadData = async () => {
+      try {
+        // Load projects from global context
+        await loadProjects();
+        
+        // Load documents (page-specific data)
+        if (currentOrgId) {
+          const docsData = await getDocuments(currentOrgId);
+          if (!isMounted) return;
+          setDocuments(docsData);
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        console.error("Failed to load documents:", error);
+        toast.error("Failed to load documents");
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-    } catch (error) {
-      console.error("Failed to load documents:", error);
-      toast.error("Failed to load documents");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    
+    loadData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [currentOrgId, loadProjects]);
 
   const handleCreateDocument = async () => {
     if (!newDocument.title.trim()) {

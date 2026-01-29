@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getOrganizations, getMyPermissions, hasPermission, Permission } from "../api";
-import { getCustomers, createCustomer, updateCustomer, deleteCustomer } from "../api/customers";
+import { hasPermission, Permission } from "../api";
+import { createCustomer, updateCustomer, deleteCustomer } from "../api/customers";
+import { useAppData } from "../context/AppDataContext";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -57,15 +58,22 @@ import { format } from "date-fns";
 
 export default function CustomersPage() {
   const navigate = useNavigate();
-  const [customers, setCustomers] = useState([]);
-  const [organizations, setOrganizations] = useState([]);
+  const {
+    customers: globalCustomers,
+    organizations,
+    permissions: globalPermissions,
+    currentOrgId,
+    loadCustomers,
+    setCustomers: setGlobalCustomers,
+    customersLoading,
+  } = useAppData();
+  
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [saving, setSaving] = useState(false);
-  const [permissions, setPermissions] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -75,37 +83,41 @@ export default function CustomersPage() {
     notes: "",
   });
 
+  // Use global data
+  const customers = globalCustomers;
+  const permissions = globalPermissions;
+
   // Permission check helper
   const canDo = (permission) => hasPermission(permissions, permission);
 
   useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      const orgsData = await getOrganizations();
-      setOrganizations(orgsData);
-      
-      if (orgsData.length > 0) {
-        const customersData = await getCustomers(orgsData[0].org_id);
-        setCustomers(customersData);
+    let isMounted = true;
+    
+    const loadData = async () => {
+      try {
+        // Load from global context
+        if (currentOrgId) {
+          await loadCustomers(currentOrgId);
+        }
         
-        // Load permissions
-        try {
-          const permData = await getMyPermissions(orgsData[0].org_id);
-          setPermissions(permData.permissions || []);
-        } catch (e) {
-          setPermissions([]);
+        if (!isMounted) return;
+      } catch (error) {
+        if (!isMounted) return;
+        console.error("Failed to load customers:", error);
+        toast.error("Failed to load customers");
+      } finally {
+        if (isMounted) {
+          setLoading(false);
         }
       }
-    } catch (error) {
-      console.error("Failed to load data:", error);
-      toast.error("Failed to load customers");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    
+    loadData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [currentOrgId, loadCustomers]);
 
   const handleOpenDialog = (customer = null) => {
     if (customer) {
@@ -138,24 +150,29 @@ export default function CustomersPage() {
       return;
     }
 
-    if (organizations.length === 0) {
+    if (!currentOrgId) {
       toast.error("No organization found. Please create an organization first.");
       return;
     }
 
-    const orgId = organizations[0].org_id;
-
     setSaving(true);
     try {
       if (selectedCustomer) {
-        await updateCustomer(selectedCustomer.customer_id, formData);
+        const updated = await updateCustomer(selectedCustomer.customer_id, formData);
+        setGlobalCustomers(customers.map(c => 
+          c.customer_id === selectedCustomer.customer_id 
+            ? { ...c, ...formData, ...updated }
+            : c
+        ));
         toast.success("Customer updated successfully");
       } else {
-        await createCustomer(orgId, formData);
+        const created = await createCustomer(currentOrgId, formData);
+        setGlobalCustomers([created, ...customers]);
         toast.success("Customer created successfully");
       }
       setDialogOpen(false);
-      loadData();
+      setSelectedCustomer(null);
+      setFormData({ name: "", email: "", contact: "", company: "", address: "", notes: "" });
     } catch (error) {
       toast.error(error.message || "Failed to save customer");
     } finally {
@@ -168,10 +185,10 @@ export default function CustomersPage() {
 
     try {
       await deleteCustomer(selectedCustomer.customer_id);
+      setGlobalCustomers(customers.filter(c => c.customer_id !== selectedCustomer.customer_id));
       toast.success("Customer deleted successfully");
       setDeleteDialogOpen(false);
       setSelectedCustomer(null);
-      loadData();
     } catch (error) {
       toast.error(error.message || "Failed to delete customer");
     }
