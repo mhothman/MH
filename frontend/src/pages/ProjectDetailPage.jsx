@@ -127,8 +127,13 @@ export default function ProjectDetailPage() {
 
       if (projectData.org_id) {
         try {
-          const permData = await getMyPermissions(projectData.org_id);
+          const [permData, docsData] = await Promise.all([
+            getMyPermissions(projectData.org_id),
+            getDocuments(projectData.org_id).catch(() => []),
+          ]);
           setPermissions(permData.permissions || []);
+          // Filter documents for this project
+          setProjectDocuments(docsData.filter(d => d.project_id === projectId));
         } catch (e) {
           console.error("Failed to load permissions:", e);
           setPermissions([]);
