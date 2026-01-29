@@ -200,6 +200,8 @@ export default function ProjectsPage() {
       status: project.status || "planned",
       color: project.color || "#3B82F6",
       customer_id: project.customer_id || "none",
+      start_date: project.start_date || format(new Date(), "yyyy-MM-dd"),
+      end_date: project.end_date || format(addDays(new Date(), 10), "yyyy-MM-dd"),
     });
     setDialogOpen(true);
   };
@@ -210,6 +212,22 @@ export default function ProjectsPage() {
       return;
     }
 
+    if (!newProject.start_date) {
+      toast.error("Please select a start date");
+      return;
+    }
+
+    if (!newProject.end_date) {
+      toast.error("Please select an end date");
+      return;
+    }
+
+    // Validate end date is after start date
+    if (new Date(newProject.end_date) < new Date(newProject.start_date)) {
+      toast.error("End date must be after or equal to start date");
+      return;
+    }
+
     setCreating(true);
     try {
       const projectData = {
@@ -217,6 +235,8 @@ export default function ProjectsPage() {
         description: newProject.description || null,
         status: newProject.status,
         color: newProject.color,
+        start_date: newProject.start_date,
+        end_date: newProject.end_date,
       };
       
       if (newProject.customer_id && newProject.customer_id !== "" && newProject.customer_id !== "none") {
@@ -233,7 +253,7 @@ export default function ProjectsPage() {
       ));
       setDialogOpen(false);
       setEditingProject(null);
-      setNewProject({ name: "", description: "", status: "planned", color: "#3B82F6", customer_id: "none" });
+      setNewProject({ name: "", description: "", status: "planned", color: "#3B82F6", customer_id: "none", ...getDefaultDates() });
       toast.success("Project updated successfully");
     } catch (error) {
       toast.error(error.message || "Failed to update project");
