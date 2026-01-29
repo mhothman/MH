@@ -410,6 +410,10 @@ export default function ProjectDetailPage() {
             <Network className="w-4 h-4 mr-1" />
             Dependencies
           </TabsTrigger>
+          <TabsTrigger value="budget" data-testid="budget-tab">
+            <Wallet className="w-4 h-4 mr-1" />
+            Budget
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="kanban" className="mt-6">
@@ -447,6 +451,16 @@ export default function ProjectDetailPage() {
 
         <TabsContent value="dependencies" className="mt-6">
           <DependencyGraph tasks={tasks} taskStatuses={taskStatuses} onTaskClick={openTaskDetail} />
+        </TabsContent>
+
+        <TabsContent value="budget" className="mt-6">
+          {project && (
+            <ProjectBudgetTab
+              project={project}
+              permissions={permissions}
+              documents={projectDocuments}
+            />
+          )}
         </TabsContent>
       </Tabs>
 
