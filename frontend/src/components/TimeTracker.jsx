@@ -104,6 +104,8 @@ export const TimeTracker = ({ taskId, taskTitle, onTimeLogged, canTrackTime = tr
       setActiveTimer(null);
       toast.success(`Logged ${result.hours_logged} hours`);
       if (onTimeLogged) onTimeLogged(result.hours_logged);
+      // Reload time logs to show the new entry
+      loadTimeLogs();
     } catch (error) {
       toast.error(error.message || "Failed to stop timer");
     } finally {
