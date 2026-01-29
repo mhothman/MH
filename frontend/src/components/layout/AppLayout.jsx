@@ -182,6 +182,7 @@ export const AppLayout = ({ children }) => {
       wsRef.current.close();
     }
     localStorage.removeItem('proflow_current_org');
+    localStorage.removeItem('proflow_branding');
     await logout();
     navigate("/");
   };
