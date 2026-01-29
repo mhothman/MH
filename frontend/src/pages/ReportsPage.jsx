@@ -37,29 +37,60 @@ export default function ReportsPage() {
   const canDo = (permission) => hasPermission(permissions, permission);
 
   useEffect(() => {
+    let isMounted = true;
+    
+    const loadData = async () => {
+      try {
+        const orgs = await getOrganizations();
+        if (!isMounted) return;
+        setOrganizations(orgs);
+        if (orgs.length > 0) {
+          setSelectedOrg(orgs[0].org_id);
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        console.error("Failed to load organizations:", error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
     loadData();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
-    if (selectedOrg) {
-      loadProjects(selectedOrg);
-      loadPermissions(selectedOrg);
-    }
-  }, [selectedOrg]);
-
-  const loadData = async () => {
-    try {
-      const orgs = await getOrganizations();
-      setOrganizations(orgs);
-      if (orgs.length > 0) {
-        setSelectedOrg(orgs[0].org_id);
+    let isMounted = true;
+    
+    const loadOrgData = async () => {
+      if (!selectedOrg) return;
+      
+      try {
+        const [projs, permData] = await Promise.all([
+          getProjects(selectedOrg),
+          getMyPermissions(selectedOrg).catch(() => ({ permissions: [] })),
+        ]);
+        
+        if (!isMounted) return;
+        setProjects(projs);
+        setPermissions(permData.permissions || []);
+      } catch (error) {
+        if (!isMounted) return;
+        console.error("Failed to load org data:", error);
       }
-    } catch (error) {
-      console.error("Failed to load organizations:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    
+    loadOrgData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedOrg]);
 
   const loadProjects = async (orgId) => {
     try {
