@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useAppData } from "../context/AppDataContext";
-import { hasPermission, Permission } from "../api";
+import { getMyPermissions, hasPermission, Permission } from "../api";
 import { 
   getOrganizationMembers, 
   inviteMember,
@@ -222,18 +222,10 @@ export default function SettingsPage() {
 
   const canDo = (permission) => hasPermission(myPermissions, permission);
 
-  const loadOrganizations = async () => {
-    try {
-      const orgs = await getOrganizations();
-      setOrganizations(orgs);
-      if (orgs.length > 0) {
-        setSelectedOrg(orgs[0]);
-      }
-    } catch (error) {
-      console.error("Failed to load organizations:", error);
-    } finally {
-      setLoading(false);
-    }
+  // Handler functions for sub-components
+  const handleSaveOrganization = async (formData) => {
+    await updateOrganization(selectedOrg.org_id, formData);
+    await refreshOrganizations(true); // Force refresh global org data
   };
 
   const loadMembers = async (orgId) => {
