@@ -141,6 +141,22 @@ export default function ProjectsPage() {
       return;
     }
 
+    if (!newProject.start_date) {
+      toast.error("Please select a start date");
+      return;
+    }
+
+    if (!newProject.end_date) {
+      toast.error("Please select an end date");
+      return;
+    }
+
+    // Validate end date is after start date
+    if (new Date(newProject.end_date) < new Date(newProject.start_date)) {
+      toast.error("End date must be after or equal to start date");
+      return;
+    }
+
     if (organizations.length === 0) {
       toast.error("No organization found");
       return;
@@ -153,6 +169,8 @@ export default function ProjectsPage() {
         description: newProject.description || null,
         status: newProject.status,
         color: newProject.color,
+        start_date: newProject.start_date,
+        end_date: newProject.end_date,
       };
       
       // Only include customer_id if it's actually selected
@@ -163,7 +181,7 @@ export default function ProjectsPage() {
       const created = await createProject(organizations[0].org_id, projectData);
       setGlobalProjects([created, ...projects]);
       setDialogOpen(false);
-      setNewProject({ name: "", description: "", status: "planned", color: "#3B82F6", customer_id: "none" });
+      setNewProject({ name: "", description: "", status: "planned", color: "#3B82F6", customer_id: "none", ...getDefaultDates() });
       toast.success("Project created successfully");
       navigate(`/projects/${created.project_id}`);
     } catch (error) {
