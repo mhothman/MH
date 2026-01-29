@@ -88,6 +88,14 @@ export default function ProjectsPage() {
     status: "planned",
     color: "#3B82F6",
     customer_id: "none",
+    start_date: format(new Date(), "yyyy-MM-dd"),
+    end_date: format(addDays(new Date(), 10), "yyyy-MM-dd"),
+  });
+  
+  // Helper function to get default dates
+  const getDefaultDates = () => ({
+    start_date: format(new Date(), "yyyy-MM-dd"),
+    end_date: format(addDays(new Date(), 10), "yyyy-MM-dd"),
   });
   
   // Use global data
