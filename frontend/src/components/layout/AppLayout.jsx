@@ -48,7 +48,11 @@ export const AppLayout = ({ children }) => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [organizations, setOrganizations] = useState([]);
-  const [currentOrg, setCurrentOrg] = useState(null);
+  const [currentOrg, setCurrentOrg] = useState(() => {
+    // Initialize from localStorage if available
+    const saved = localStorage.getItem('proflow_current_org');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -61,7 +65,20 @@ export const AppLayout = ({ children }) => {
       const orgs = await getOrganizations();
       setOrganizations(orgs);
       if (orgs.length > 0) {
-        setCurrentOrg((prev) => prev || orgs[0]);
+        setCurrentOrg((prev) => {
+          // If we have a saved org, verify it still exists in the list
+          if (prev) {
+            const stillExists = orgs.find(o => o.org_id === prev.org_id);
+            if (stillExists) {
+              // Update with latest data from server
+              localStorage.setItem('proflow_current_org', JSON.stringify(stillExists));
+              return stillExists;
+            }
+          }
+          // Default to first org
+          localStorage.setItem('proflow_current_org', JSON.stringify(orgs[0]));
+          return orgs[0];
+        });
       }
     } catch (error) {
       console.error("Failed to load organizations:", error);
