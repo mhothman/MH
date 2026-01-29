@@ -51,35 +51,20 @@ export default function DashboardPage() {
     
     const loadData = async () => {
       try {
-        const [dashboardData, projectsData, orgsData] = await Promise.all([
-          getDashboard(),
-          getProjects(),
-          getOrganizations(),
-        ]);
+        // Load dashboard-specific data, global data comes from AppDataContext
+        const dashboardData = await getDashboard();
         
         if (!isMounted) return;
-        
         setDashboard(dashboardData);
-        setProjects(projectsData.slice(0, 4));
         
-        // Load permissions and pending approvals if org exists
-        if (orgsData.length > 0) {
-          const orgId = orgsData[0].org_id;
-          setCurrentOrgId(orgId);
-          
+        // Load pending approvals if org exists
+        if (currentOrgId) {
           try {
-            const [permData, approvalsData] = await Promise.all([
-              getMyPermissions(orgId),
-              getOrgDocumentApprovals(orgId, 'pending', 5).catch(() => []),
-            ]);
-            
+            const approvalsData = await getOrgDocumentApprovals(currentOrgId, 'pending', 5);
             if (!isMounted) return;
-            
-            setPermissions(permData.permissions || []);
-            setPendingApprovals(approvalsData.slice(0, 5) || []);
+            setPendingApprovals(approvalsData?.slice(0, 5) || []);
           } catch (e) {
             if (!isMounted) return;
-            setPermissions([]);
             setPendingApprovals([]);
           }
         }
@@ -93,6 +78,9 @@ export default function DashboardPage() {
       }
     };
     
+    // Load global data from context
+    loadProjects();
+    loadPermissions(currentOrgId);
     loadData();
     
     return () => {
