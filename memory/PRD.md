@@ -684,6 +684,29 @@ Benefits:
     - Advanced preferences UI in Settings > Preferences
   - **Testing:** 19/19 backend tests passing (`test_notifications.py`), full frontend UI verified
   - **Test Report:** `/app/test_reports/iteration_39.json`
+- **2026-01-29**: Frontend Global State Refactoring - COMPLETED ✅
+  - **Problem:** Application was slow and showed "failed to load" errors when navigating fast between pages (Projects, Customers, Documents). This was caused by race conditions from redundant API calls. Sometimes it would trigger automatic logout.
+  - **Solution:** Implemented global state management using React Context (`AppDataContext`) and API caching (`apiCache.js`).
+  - **Files Created/Updated:**
+    - `context/AppDataContext.js` - Global state provider with shared data (organizations, projects, customers, permissions)
+    - `utils/apiCache.js` - In-memory cache with TTL to prevent duplicate API requests
+  - **Pages Refactored to use `useAppData()` hook:**
+    - `DashboardPage.jsx` - Uses global projects, permissions
+    - `ProjectsPage.jsx` - Uses global projects, customers, organizations; CRUD updates state directly
+    - `CustomersPage.jsx` - Uses global customers, permissions; CRUD updates state directly
+    - `DocumentsPage.jsx` - Uses global projects, organizations, permissions
+    - `ReportsPage.jsx` - Uses global projects, organizations, permissions
+    - `SettingsPage.jsx` - Uses global organizations from context
+  - **Key Changes:**
+    - Pages no longer fetch data independently - they share data from AppDataContext
+    - CRUD operations update global state directly using `setProjects`/`setCustomers` instead of re-fetching
+    - Cache prevents duplicate API calls during rapid navigation
+    - No more race conditions from unmounted components trying to set state
+  - **Testing Results:** 100% success rate (14/14 tests passed)
+    - Rapid navigation (8 page switches) without logout or errors
+    - CRUD operations correctly update global state
+    - Data persists across page navigation
+  - **Test Report:** `/app/test_reports/iteration_40.json`
 - **2026-01-27**: Performance & Edge Case Tests - COMPLETED ✅
   - **Performance Tests** (`test_performance.py`): 11 tests
     - Response Time SLA Tests: login, tasks, projects, notifications, permissions, members
