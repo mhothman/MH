@@ -279,7 +279,7 @@ export default function ProjectsPage() {
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setEditingProject(null);
-    setNewProject({ name: "", description: "", status: "planned", color: "#3B82F6", customer_id: "none" });
+    setNewProject({ name: "", description: "", status: "planned", color: "#3B82F6", customer_id: "none", ...getDefaultDates() });
   };
 
   const handleDialogOpenChange = (open) => {
