@@ -153,7 +153,7 @@ export default function ProjectsPage() {
       }
       
       const created = await createProject(organizations[0].org_id, projectData);
-      setProjects([created, ...projects]);
+      setGlobalProjects([created, ...projects]);
       setDialogOpen(false);
       setNewProject({ name: "", description: "", status: "planned", color: "#3B82F6", customer_id: "none" });
       toast.success("Project created successfully");
