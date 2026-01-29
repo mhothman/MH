@@ -453,12 +453,54 @@ export function TaskDetailDialog({
                 </div>
               )}
               {getPriorityBadge(task.priority)}
-              {task.due_date && (
-                <span className="text-sm text-muted-foreground flex items-center gap-1">
+            </div>
+
+            {/* Start Date & Due Date */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  {safeFormat(task.due_date, "MMM d, yyyy") || "No date"}
-                </span>
-              )}
+                  Start Date <span className="text-destructive">*</span>
+                </Label>
+                {canEdit && !isTaskLocked ? (
+                  <Input
+                    type="date"
+                    value={task.start_date ? task.start_date.split('T')[0] : ''}
+                    onChange={(e) => onUpdateTask?.(task.task_id, { start_date: e.target.value })}
+                    data-testid="task-edit-start-date"
+                  />
+                ) : (
+                  <div className="text-sm text-muted-foreground py-2">
+                    {safeFormat(task.start_date, "MMM d, yyyy") || "Not set"}
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Due Date <span className="text-destructive">*</span>
+                </Label>
+                {canEdit && !isTaskLocked ? (
+                  <Input
+                    type="date"
+                    value={task.due_date ? task.due_date.split('T')[0] : ''}
+                    min={task.start_date ? task.start_date.split('T')[0] : ''}
+                    onChange={(e) => {
+                      const startDate = task.start_date ? task.start_date.split('T')[0] : '';
+                      if (startDate && e.target.value < startDate) {
+                        toast.error("Due date must be after or equal to start date");
+                        return;
+                      }
+                      onUpdateTask?.(task.task_id, { due_date: e.target.value });
+                    }}
+                    data-testid="task-edit-due-date"
+                  />
+                ) : (
+                  <div className="text-sm text-muted-foreground py-2">
+                    {safeFormat(task.due_date, "MMM d, yyyy") || "Not set"}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Recurrence */}
