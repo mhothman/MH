@@ -126,6 +126,25 @@ class ProjectUpdate(BaseModel):
         if v is not None and not HEX_COLOR_PATTERN.match(v):
             raise ValueError('Invalid color format. Must be a valid hex color (e.g., #3B82F6)')
         return v.upper() if v else v
+    
+    @field_validator('start_date', 'end_date')
+    @classmethod
+    def validate_date_format(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and v.strip():
+            try:
+                datetime.strptime(v, '%Y-%m-%d')
+            except ValueError:
+                raise ValueError('Invalid date format. Must be YYYY-MM-DD')
+        return v
+    
+    @model_validator(mode='after')
+    def validate_dates(self):
+        if self.start_date and self.end_date:
+            start = datetime.strptime(self.start_date, '%Y-%m-%d')
+            end = datetime.strptime(self.end_date, '%Y-%m-%d')
+            if end < start:
+                raise ValueError('End date must be after or equal to start date')
+        return self
 
 class ProjectResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
