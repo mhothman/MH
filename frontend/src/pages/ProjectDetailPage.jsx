@@ -182,8 +182,8 @@ export default function ProjectDetailPage() {
       const taskData = {
         ...newTask,
         project_id: projectId,
-        due_date: newTask.due_date ? new Date(newTask.due_date).toISOString() : null,
-        start_date: newTask.start_date ? new Date(newTask.start_date).toISOString() : null,
+        due_date: newTask.due_date || null,
+        start_date: newTask.start_date || null,
       };
       const created = await createTask(taskData);
       setTasks([...tasks, created]);
