@@ -390,7 +390,7 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
     setExpenseForm({
       title: "",
       amount: "",
-      currency: "USD",
+      currency: "EGP",
       category: "general",
       date: format(new Date(), "yyyy-MM-dd"),
       description: "",
