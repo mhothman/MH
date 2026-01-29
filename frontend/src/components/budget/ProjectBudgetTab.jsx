@@ -312,14 +312,18 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
         category: expenseForm.category,
         date: expenseForm.date,
         description: expenseForm.description || null,
-        document_id: expenseForm.document_id || null,
+        document_id: expenseForm.document_id && expenseForm.document_id !== "" ? expenseForm.document_id : null,
       });
       
+      toast.success("Expense updated successfully");
       setExpenseDialogOpen(false);
       setEditingExpense(null);
       resetExpenseForm();
-      toast.success("Expense updated successfully");
-      loadBudgetData();
+      
+      // Reload data in background
+      loadBudgetData().catch((err) => {
+        console.error("Failed to reload budget data after expense update:", err);
+      });
     } catch (error) {
       toast.error(error.message || "Failed to update expense");
     } finally {
