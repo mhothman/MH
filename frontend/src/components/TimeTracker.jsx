@@ -131,47 +131,115 @@ export const TimeTracker = ({ taskId, taskTitle, onTimeLogged, canTrackTime = tr
     return null;
   }
 
-  if (activeTimer) {
-    return (
-      <div className="flex items-center gap-2 p-2 bg-primary/10 rounded-md" data-testid="active-timer">
-        <Clock className="w-4 h-4 text-primary animate-pulse" />
-        <Badge variant="secondary" className="font-mono text-sm">
-          {formatTime(elapsed)}
-        </Badge>
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={handleStop}
-          disabled={loading}
-          data-testid="stop-timer-btn"
-        >
-          <Square className="w-3 h-3 mr-1" />
-          Stop
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={handleDiscard}
-          disabled={loading}
-          data-testid="discard-timer-btn"
-        >
-          <X className="w-3 h-3" />
-        </Button>
-      </div>
-    );
-  }
+  // Helper to format duration
+  const formatDuration = (minutes) => {
+    if (!minutes) return "0m";
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hrs > 0) {
+      return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+    }
+    return `${mins}m`;
+  };
+
+  // Calculate total logged time
+  const totalMinutes = timeLogs.reduce((sum, log) => sum + (log.duration_minutes || 0), 0);
+  const totalHours = (totalMinutes / 60).toFixed(1);
 
   return (
-    <Button
-      size="sm"
-      variant="outline"
-      onClick={handleStart}
-      disabled={loading}
-      data-testid="start-timer-btn"
-    >
-      <Play className="w-3 h-3 mr-1" />
-      Start Timer
-    </Button>
+    <div className="space-y-3">
+      {/* Timer Controls */}
+      <div className="flex items-center gap-2">
+        {activeTimer ? (
+          <div className="flex items-center gap-2 p-2 bg-primary/10 rounded-md flex-1" data-testid="active-timer">
+            <Clock className="w-4 h-4 text-primary animate-pulse" />
+            <Badge variant="secondary" className="font-mono text-sm">
+              {formatTime(elapsed)}
+            </Badge>
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={handleStop}
+              disabled={loading}
+              data-testid="stop-timer-btn"
+            >
+              <Square className="w-3 h-3 mr-1" />
+              Stop
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleDiscard}
+              disabled={loading}
+              data-testid="discard-timer-btn"
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          </div>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleStart}
+            disabled={loading}
+            data-testid="start-timer-btn"
+          >
+            <Play className="w-3 h-3 mr-1" />
+            Start Timer
+          </Button>
+        )}
+        
+        {/* Summary Badge */}
+        <Badge variant="outline" className="text-xs">
+          {totalHours}h logged
+          {estimatedHours && ` / ${estimatedHours}h est`}
+        </Badge>
+      </div>
+
+      {/* Time Logs */}
+      {timeLogs.length > 0 && (
+        <div className="space-y-2">
+          <button 
+            onClick={() => setShowLogs(!showLogs)}
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <History className="w-3 h-3" />
+            {showLogs ? "Hide" : "Show"} time logs ({timeLogs.length})
+          </button>
+          
+          {showLogs && (
+            <div className="space-y-2 max-h-[200px] overflow-y-auto border rounded-md p-2 bg-muted/30">
+              {timeLogs.map((log) => (
+                <div 
+                  key={log.entry_id} 
+                  className="flex items-center gap-2 text-sm p-2 bg-background rounded-md"
+                  data-testid={`time-log-${log.entry_id}`}
+                >
+                  <Avatar className="w-6 h-6">
+                    <AvatarImage src={log.user_picture} />
+                    <AvatarFallback className="text-[10px]">
+                      {log.user_name?.charAt(0) || "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium truncate">{log.user_name || "Unknown"}</span>
+                      <Badge variant="secondary" className="text-xs font-mono">
+                        {formatDuration(log.duration_minutes)}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {log.started_at && format(new Date(log.started_at), "MMM d, yyyy 'at' h:mm a")}
+                      {log.description && <span className="ml-2">• {log.description}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 
