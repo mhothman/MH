@@ -4,9 +4,9 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { getMyPermissions, hasPermission, Permission } from "../api";
+import { useAppData } from "../context/AppDataContext";
+import { hasPermission, Permission } from "../api";
 import { 
-  getOrganizations, 
   getOrganizationMembers, 
   inviteMember,
   removeMember,
@@ -68,8 +68,15 @@ import {
 export default function SettingsPage() {
   const { user } = useAuth();
   const { theme, toggleTheme, previewBranding, revertPreview, loadBranding: reloadBranding } = useTheme();
+  const {
+    organizations,
+    permissions: globalPermissions,
+    currentOrg,
+    currentOrgId,
+    loadOrganizations: refreshOrganizations,
+  } = useAppData();
+  
   const [loading, setLoading] = useState(true);
-  const [organizations, setOrganizations] = useState([]);
   const [members, setMembers] = useState([]);
   const [pendingInvitations, setPendingInvitations] = useState([]);
   const [selectedOrg, setSelectedOrg] = useState(null);
@@ -100,13 +107,21 @@ export default function SettingsPage() {
     
     const initLoad = async () => {
       try {
-        await Promise.all([
-          loadOrganizations(),
-          loadAllPermissions(),
-        ]);
+        // Use the organization from global context
+        if (currentOrg) {
+          setSelectedOrg(currentOrg);
+        } else if (organizations.length > 0) {
+          setSelectedOrg(organizations[0]);
+        }
+        
+        await loadAllPermissions();
       } catch (e) {
         if (!isMounted) return;
         console.error("Failed to initialize settings:", e);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
     
@@ -117,7 +132,7 @@ export default function SettingsPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [currentOrg, organizations]);
 
   const loadPresetFonts = async () => {
     try {
