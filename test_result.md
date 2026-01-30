@@ -159,6 +159,9 @@ frontend:
       - working: true
         agent: "testing"
         comment: "RETESTED with recent fixes - ALL REQUIREMENTS VERIFIED: ✓ Project names now display correctly in budget items (Valid Test Project, Website Redesign, wow) - backend API includes project_name field (budget_service.py lines 107-120), frontend displays it (line 143) ✓ Widget positioning VERIFIED - Budget Widget appears BEFORE Recent Projects card (Y position: 394 vs 904) - correctly placed at line 202 in DashboardPage.jsx ✓ Click functionality WORKING - clicking budget items navigates to correct project detail pages (/projects/{project_id}) ✓ Currency symbols display correctly (E£ for EGP projects) ✓ All 3 expected projects found with correct budgets ✓ Summary stats accurate (Total Budget: E£108,000, Total Spent: E£0, At Risk: 0) ✓ Status badges show 'Active' ✓ Progress bars display at 0% ✓ No console errors or page errors. Feature fully functional and all recent fixes verified."
+      - working: true
+        agent: "testing"
+        comment: "PROGRESS BAR FIX VERIFIED - spent_amount field now working correctly. Testing confirmed: ✓ Total Spent shows E£86,444.75 (NOT E£0) - fix is working! ✓ Website Redesign displays E£30,844 / E£30,000 (103%) ✓ Progress bar is RED (rgb(239, 68, 68)) and filled to 100% ✓ Over budget message displays: 'Over budget by E£844' ✓ Percentage shows 103% ✓ Status badge shows 'Exceeded' (red badge) ✓ Summary stats accurate: Total Budget E£108,000, Total Spent E£86,444.75, At Risk: 2 ✓ All 3 budget items display correctly with proper spent amounts ✓ No console errors. ADDITIONAL FIX APPLIED: Found and fixed status badge bug in getBudgetStatus function (line 36) - changed from budget.spent to budget.spent_amount to ensure status badges calculate correctly. All requirements from review request verified and working."
 
 metadata:
   created_by: "main_agent"
