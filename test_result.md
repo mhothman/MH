@@ -123,11 +123,11 @@ backend:
 frontend:
   - task: "Display time logs in task detail dialog"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/src/components/TimeTracker.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -135,6 +135,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "CRITICAL BUG FOUND: Timestamp not displaying. Line 232 uses 'log.started_at' but backend API returns 'created_at'. This causes timestamps to be empty. Other features working: ✓ Time logs fetch correctly ✓ User avatar displays with fallback initials ✓ User name displays ✓ Duration badge shows correctly (e.g., '1m') ✓ Show/hide toggle works ✓ List updates after stopping timer ✓ Total logged hours displays. FIX NEEDED: Change line 232 from 'log.started_at' to 'log.created_at'."
+      - working: true
+        agent: "testing"
+        comment: "BUG FIXED and verified. Changed line 232 from 'log.started_at' to 'log.created_at'. Comprehensive testing completed: ✓ Time logs fetch and display correctly ✓ User avatars display with fallback initials (e.g., 'T' for Test User) ✓ User names display correctly ✓ Duration badges show formatted time (e.g., '1m', '2h 30m') ✓ Timestamps display in correct format (MMM d, yyyy 'at' h:mm a) ✓ Show/hide toggle works ✓ Timer integration works - list updates after stopping timer ✓ Total logged hours displays correctly ✓ Scrollable container works (max-height: 200px) ✓ No console errors. Feature fully functional."
 
 metadata:
   created_by: "main_agent"
