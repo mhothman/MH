@@ -125,7 +125,7 @@ export const BudgetDashboardWidget = ({ orgId }) => {
         <div className="space-y-3 max-h-[300px] overflow-y-auto">
           {budgets.map((budget) => {
             const status = getBudgetStatus(budget);
-            const spent = budget.spent ?? 0;
+            const spent = budget.spent_amount ?? 0;
             const totalBudget = budget.total_budget ?? 0;
             const percentUsed = totalBudget > 0 
               ? (spent / totalBudget) * 100 
