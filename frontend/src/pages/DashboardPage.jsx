@@ -198,6 +198,9 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Budget Overview Widget - Placed before Recent Projects */}
+      {currentOrgId && <BudgetDashboardWidget orgId={currentOrgId} />}
+
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Recent Projects */}
         <Card data-testid="recent-projects-card">
@@ -291,9 +294,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Budget Overview Widget */}
-      {currentOrgId && <BudgetDashboardWidget orgId={currentOrgId} />}
 
       {/* Pending Approvals Widget */}
       {pendingApprovals.length > 0 && (
