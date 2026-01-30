@@ -181,13 +181,14 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 3
+  test_sequence: 4
   run_ui: true
 
 test_plan:
   current_focus:
-    - "Budget Dashboard Widget"
-  stuck_tasks: []
+    - "Budget Approval Workflow - Finance Role"
+  stuck_tasks:
+    - "Budget Approval Workflow - Finance Role"
   test_all: false
   test_priority: "high_first"
 
