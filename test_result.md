@@ -167,7 +167,7 @@ frontend:
     implemented: true
     working: false
     file: "/app/frontend/src/components/budget/ProjectBudgetTab.jsx"
-    stuck_count: 1
+    stuck_count: 2
     priority: "high"
     needs_retesting: true
     status_history:
@@ -177,6 +177,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "CRITICAL BUGS PREVENTING TESTING: 1) 'Request Change' button NOT VISIBLE to regular users (test@proflow.com) - Button visibility logic at line 680 requires !canEdit && !canApprove, but test user has budget:edit permission making canEdit=true, thus hiding the button. The 'Settings' button is visible instead, confirming user has edit permissions. This logic flaw prevents non-Finance users from requesting approvals. 2) UNDEFINED orgId BUG - ProjectBudgetTab.jsx line 1149 passes orgId prop to BudgetApprovalDialog but orgId variable is never defined in the component scope (should be project.org_id). This will cause runtime error when dialog opens. 3) Login issue for ahmed@ahmed.com - 401 error on /api/auth/login endpoint. WORKFLOW CANNOT BE TESTED END-TO-END until these bugs are fixed. Backend approval system exists (/api/budget-approvals endpoints working), BudgetApprovalsManager component exists, but frontend integration is broken due to permission logic and missing variable."
+      - working: false
+        agent: "testing"
+        comment: "RETEST AFTER BUG FIXES - ROOT CAUSE IDENTIFIED: The 'Request Change' button is NOT visible because test user (test@proflow.com) has 'budget:approve' permission (super_admin role). CODE ANALYSIS: Line 680 condition is {!canApprove && budget} - this is CORRECT implementation. When user has budget:approve permission, canApprove=true, making !canApprove=false, so button is hidden. VERIFIED: test@proflow.com has permissions including 'budget:approve', 'budget:edit', 'budget:create', 'budget:delete', 'budget:override' (super_admin role in org_3a0711d3f937). The bug fixes were ACTUALLY APPLIED CORRECTLY (orgId fixed to project.org_id at line 1149, button visibility logic updated to !canApprove at line 680), but TEST SCENARIO IS INVALID. The review request incorrectly identifies test@proflow.com as a 'Regular User' when they are actually a super_admin with Finance permissions. WORKFLOW CANNOT BE TESTED with current test users. REQUIRED: Either (1) Create new user without budget:approve permission, (2) Remove budget:approve from test@proflow.com for this org, or (3) Identify existing user without budget:approve permission to use as requester."
 
 metadata:
   created_by: "main_agent"
