@@ -165,11 +165,11 @@ frontend:
   
   - task: "Budget Approval Workflow - Finance Role"
     implemented: true
-    working: false
+    working: "NA"
     file: "/app/frontend/src/components/budget/ProjectBudgetTab.jsx"
-    stuck_count: 2
+    stuck_count: 3
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
