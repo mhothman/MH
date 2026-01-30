@@ -58,7 +58,8 @@ export const BudgetDashboardWidget = ({ orgId }) => {
 
   const formatAmount = (amount, currency) => {
     const symbol = getCurrencySymbol(currency);
-    return `${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    const safeAmount = amount ?? 0;
+    return `${symbol}${safeAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   };
 
   // Calculate summary stats
