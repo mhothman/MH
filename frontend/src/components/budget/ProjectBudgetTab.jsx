@@ -677,7 +677,7 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
                 Add Expense
               </Button>
             )}
-            {!canEdit && !canApprove && budget && (
+            {!canApprove && budget && (
               <Button variant="outline" size="sm" onClick={() => setApprovalDialogOpen(true)}>
                 <FileEdit className="w-4 h-4 mr-1" />
                 Request Change
