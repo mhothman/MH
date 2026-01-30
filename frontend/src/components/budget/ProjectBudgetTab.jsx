@@ -1201,4 +1201,18 @@ function ExpenseTable({ expenses, currency, canEdit, canDelete, onEdit, onDelete
   );
 }
 
+      {/* Budget Approval Dialog */}
+      {approvalDialogOpen && budget && (
+        <BudgetApprovalDialog
+          open={approvalDialogOpen}
+          onOpenChange={setApprovalDialogOpen}
+          budget={budget}
+          orgId={orgId}
+          onSuccess={loadBudgetData}
+        />
+      )}
+    </div>
+  );
+}
+
 export default ProjectBudgetTab;
