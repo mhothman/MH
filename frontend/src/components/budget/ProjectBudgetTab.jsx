@@ -1146,7 +1146,7 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
           open={approvalDialogOpen}
           onOpenChange={setApprovalDialogOpen}
           budget={budget}
-          orgId={orgId}
+          orgId={project.org_id}
           onSuccess={loadBudgetData}
         />
       )}
