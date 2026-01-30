@@ -292,6 +292,9 @@ export default function DashboardPage() {
         </Card>
       </div>
 
+      {/* Budget Overview Widget */}
+      {currentOrgId && <BudgetDashboardWidget orgId={currentOrgId} />}
+
       {/* Pending Approvals Widget */}
       {pendingApprovals.length > 0 && (
         <Card data-testid="pending-approvals-card" className="border-amber-200 bg-amber-50/30 dark:bg-amber-950/20 dark:border-amber-800">
