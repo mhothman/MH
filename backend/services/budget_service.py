@@ -103,6 +103,19 @@ class BudgetService:
             {"org_id": org_id},
             {"_id": 0}
         ).sort("created_at", -1).to_list(1000)
+        
+        # Fetch project names
+        project_ids = [b["project_id"] for b in budgets if b.get("project_id")]
+        if project_ids:
+            projects = await db.projects.find(
+                {"project_id": {"$in": project_ids}},
+                {"_id": 0, "project_id": 1, "name": 1}
+            ).to_list(len(project_ids))
+            projects_map = {p["project_id"]: p["name"] for p in projects}
+            
+            for budget in budgets:
+                budget["project_name"] = projects_map.get(budget["project_id"], "Unknown")
+        
         return budgets
     
     async def update_budget(
