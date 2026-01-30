@@ -101,3 +101,48 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Display time entry logs within the task detail dialog, showing who logged time, duration, and when it was logged"
+
+backend:
+  - task: "Include user details in time entries API response"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/services/time_service.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Backend service updated to fetch user names and pictures and include them in time entry responses (lines 198-214). Needs end-to-end testing with frontend."
+
+frontend:
+  - task: "Display time logs in task detail dialog"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/components/TimeTracker.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "TimeTracker component updated to fetch and display time entries list (lines 15-241). Shows user avatar, name, duration, and timestamp for each log entry. Includes collapsible section with show/hide toggle. Needs comprehensive UI testing."
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: true
+
+test_plan:
+  current_focus:
+    - "Display time logs in task detail dialog"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Previous agent implemented the time logs feature in task dialog. Backend includes user details in API response, frontend displays them in a collapsible list. Need to verify: 1) Time entries are fetched correctly 2) User information displays (avatar, name) 3) Duration and timestamps are formatted properly 4) The list updates after stopping a timer. Please test with a task that has existing time entries."
