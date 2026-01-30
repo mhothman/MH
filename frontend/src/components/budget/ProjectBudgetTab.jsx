@@ -70,6 +70,7 @@ import {
   Settings,
   FileText,
   PiggyBank,
+  FileEdit,
 } from "lucide-react";
 import {
   getBudgetByProject,
