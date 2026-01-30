@@ -102,6 +102,7 @@ api_router.include_router(ssl_router.router, prefix="/ssl", tags=["SSL Certifica
 api_router.include_router(workflow_router.router, prefix="/workflows", tags=["Task Workflows"])
 api_router.include_router(document_router.router, prefix="/documents", tags=["Documents"])
 api_router.include_router(budget_router.router, prefix="/budgets", tags=["Budgets"])
+api_router.include_router(budget_approval_router.router, prefix="/budget-approvals", tags=["Budget Approvals"])
 
 app.include_router(api_router)
 
