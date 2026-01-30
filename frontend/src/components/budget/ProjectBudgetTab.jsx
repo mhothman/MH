@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { BudgetApprovalDialog } from "./BudgetApprovalDialog";
 import {
   Table,
   TableBody,
