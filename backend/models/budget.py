@@ -129,6 +129,7 @@ class ProjectBudgetResponse(BaseModel):
     budget_id: str
     org_id: str
     project_id: str
+    project_name: Optional[str] = None  # Project name for display
     total_budget: float
     currency: str
     warning_threshold_percent: float
