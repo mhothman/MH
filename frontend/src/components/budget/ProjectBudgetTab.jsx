@@ -137,6 +137,9 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
     description: "",
     source: "manual",
   });
+  
+  // Budget approval state
+  const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
 
   // Permission helpers
   const canEdit = permissions?.includes("budget:edit") || permissions?.includes("budget:create");
@@ -145,6 +148,7 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
   const canCreateExpense = permissions?.includes("expense:create");
   const canEditExpense = permissions?.includes("expense:edit");
   const canDeleteExpense = permissions?.includes("expense:delete");
+  const canApprove = permissions?.includes("budget:approve");  // Finance role
 
   useEffect(() => {
     loadBudgetData();
