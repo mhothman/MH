@@ -107,20 +107,23 @@ user_problem_statement: "Display time entry logs within the task detail dialog, 
 backend:
   - task: "Include user details in time entries API response"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/services/time_service.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Backend service updated to fetch user names and pictures and include them in time entry responses (lines 198-214). Needs end-to-end testing with frontend."
+      - working: true
+        agent: "testing"
+        comment: "Backend API tested and working correctly. API returns time entries with user_name and user_picture fields. Response includes: entry_id, task_id, user_id, org_id, duration_minutes, description, date, created_at, from_timer, user_name, user_picture. All fields present and correctly formatted."
 
 frontend:
   - task: "Display time logs in task detail dialog"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/components/TimeTracker.jsx"
     stuck_count: 0
     priority: "high"
@@ -129,6 +132,9 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "TimeTracker component updated to fetch and display time entries list (lines 15-241). Shows user avatar, name, duration, and timestamp for each log entry. Includes collapsible section with show/hide toggle. Needs comprehensive UI testing."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL BUG FOUND: Timestamp not displaying. Line 232 uses 'log.started_at' but backend API returns 'created_at'. This causes timestamps to be empty. Other features working: ✓ Time logs fetch correctly ✓ User avatar displays with fallback initials ✓ User name displays ✓ Duration badge shows correctly (e.g., '1m') ✓ Show/hide toggle works ✓ List updates after stopping timer ✓ Total logged hours displays. FIX NEEDED: Change line 232 from 'log.started_at' to 'log.created_at'."
 
 metadata:
   created_by: "main_agent"
