@@ -22,6 +22,7 @@ import {
   Shield,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { BudgetDashboardWidget } from "../components/budget/BudgetDashboardWidget";
 
 export default function DashboardPage() {
   const { user } = useAuth();
