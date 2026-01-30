@@ -149,7 +149,7 @@ export const BudgetDashboardWidget = ({ orgId }) => {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">
-                        {formatAmount(budget.spent, budget.currency)} / {formatAmount(budget.total_budget, budget.currency)}
+                        {formatAmount(budget.spent_amount, budget.currency)} / {formatAmount(budget.total_budget, budget.currency)}
                       </span>
                       <span className="font-mono text-xs font-medium">
                         {percentUsed.toFixed(0)}%
@@ -161,10 +161,10 @@ export const BudgetDashboardWidget = ({ orgId }) => {
                     />
                   </div>
                   
-                  {budget.remaining < 0 && (
+                  {budget.remaining_amount < 0 && (
                     <div className="flex items-center gap-1 mt-2 text-xs text-red-600">
                       <TrendingDown className="w-3 h-3" />
-                      <span>Over budget by {formatAmount(Math.abs(budget.remaining), budget.currency)}</span>
+                      <span>Over budget by {formatAmount(Math.abs(budget.remaining_amount), budget.currency)}</span>
                     </div>
                   )}
                 </div>
