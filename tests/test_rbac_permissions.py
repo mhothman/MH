@@ -9,7 +9,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://docflows.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://costmanager-5.preview.emergentagent.com')
 
 # Test credentials
 ORG_ADMIN_EMAIL = "test@proflow.com"
