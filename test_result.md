@@ -152,3 +152,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Previous agent implemented the time logs feature in task dialog. Backend includes user details in API response, frontend displays them in a collapsible list. Need to verify: 1) Time entries are fetched correctly 2) User information displays (avatar, name) 3) Duration and timestamps are formatted properly 4) The list updates after stopping a timer. Please test with a task that has existing time entries."
+  - agent: "testing"
+    message: "Comprehensive testing completed. Found one CRITICAL bug: timestamps not displaying due to field name mismatch (frontend uses 'started_at' but backend returns 'created_at'). All other features working correctly: time logs display, avatars show with fallback, duration badges work, toggle functions, list updates after timer stops. Backend API verified working. Fix required in TimeTracker.jsx line 232."
