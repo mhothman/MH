@@ -1139,6 +1139,17 @@ export function ProjectBudgetTab({ project, permissions, documents = [] }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Budget Approval Dialog */}
+      {approvalDialogOpen && budget && (
+        <BudgetApprovalDialog
+          open={approvalDialogOpen}
+          onOpenChange={setApprovalDialogOpen}
+          budget={budget}
+          orgId={orgId}
+          onSuccess={loadBudgetData}
+        />
+      )}
     </div>
   );
 }
