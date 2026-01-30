@@ -162,6 +162,21 @@ frontend:
       - working: true
         agent: "testing"
         comment: "PROGRESS BAR FIX VERIFIED - spent_amount field now working correctly. Testing confirmed: ✓ Total Spent shows E£86,444.75 (NOT E£0) - fix is working! ✓ Website Redesign displays E£30,844 / E£30,000 (103%) ✓ Progress bar is RED (rgb(239, 68, 68)) and filled to 100% ✓ Over budget message displays: 'Over budget by E£844' ✓ Percentage shows 103% ✓ Status badge shows 'Exceeded' (red badge) ✓ Summary stats accurate: Total Budget E£108,000, Total Spent E£86,444.75, At Risk: 2 ✓ All 3 budget items display correctly with proper spent amounts ✓ No console errors. ADDITIONAL FIX APPLIED: Found and fixed status badge bug in getBudgetStatus function (line 36) - changed from budget.spent to budget.spent_amount to ensure status badges calculate correctly. All requirements from review request verified and working."
+  
+  - task: "Budget Approval Workflow - Finance Role"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/components/budget/ProjectBudgetTab.jsx"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Budget approval workflow implemented. Regular users can request budget changes via 'Request Change' button. Finance users (with budget:approve permission) can view pending approvals at /budget-approvals page and approve/reject requests. Backend API endpoints created for approval workflow."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL BUGS PREVENTING TESTING: 1) 'Request Change' button NOT VISIBLE to regular users (test@proflow.com) - Button visibility logic at line 680 requires !canEdit && !canApprove, but test user has budget:edit permission making canEdit=true, thus hiding the button. The 'Settings' button is visible instead, confirming user has edit permissions. This logic flaw prevents non-Finance users from requesting approvals. 2) UNDEFINED orgId BUG - ProjectBudgetTab.jsx line 1149 passes orgId prop to BudgetApprovalDialog but orgId variable is never defined in the component scope (should be project.org_id). This will cause runtime error when dialog opens. 3) Login issue for ahmed@ahmed.com - 401 error on /api/auth/login endpoint. WORKFLOW CANNOT BE TESTED END-TO-END until these bugs are fixed. Backend approval system exists (/api/budget-approvals endpoints working), BudgetApprovalsManager component exists, but frontend integration is broken due to permission logic and missing variable."
 
 metadata:
   created_by: "main_agent"
