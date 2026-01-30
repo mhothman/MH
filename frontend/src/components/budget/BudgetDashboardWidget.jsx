@@ -33,7 +33,7 @@ export const BudgetDashboardWidget = ({ orgId }) => {
 
   const getBudgetStatus = (budget) => {
     const percentUsed = budget.total_budget > 0 
-      ? (budget.spent / budget.total_budget) * 100 
+      ? ((budget.spent_amount || 0) / budget.total_budget) * 100 
       : 0;
 
     if (budget.status === 'locked') {
