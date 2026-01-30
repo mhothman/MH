@@ -239,6 +239,29 @@ ROLE_PERMISSIONS: Dict[str, List[str]] = {
         Permission.BUDGET_VIEW,
         Permission.EXPENSE_VIEW,
     ],
+    
+    "finance": [
+        # Finance role is the sole approver for budget changes
+        # Has full access to budget and expense management
+        Permission.PROJECT_VIEW,
+        Permission.TASK_VIEW,
+        Permission.MEMBER_VIEW,
+        Permission.CUSTOMER_VIEW,
+        Permission.REPORT_VIEW, Permission.REPORT_EXPORT,
+        Permission.COMMENT_VIEW, Permission.COMMENT_CREATE, Permission.COMMENT_EDIT_OWN,
+        Permission.TIME_VIEW_ALL,
+        # Workflow permissions - Finance can view workflows
+        Permission.WORKFLOW_VIEW,
+        Permission.APPROVAL_VIEW, Permission.APPROVAL_REQUEST,
+        # Document permissions - Finance can view documents
+        Permission.DOCUMENT_VIEW,
+        # Budget permissions - Finance has FULL budget management access
+        Permission.BUDGET_VIEW, Permission.BUDGET_CREATE, Permission.BUDGET_EDIT,
+        Permission.BUDGET_DELETE, Permission.BUDGET_APPROVE, Permission.BUDGET_OVERRIDE,
+        # Expense permissions - Finance has FULL expense management access
+        Permission.EXPENSE_VIEW, Permission.EXPENSE_CREATE, Permission.EXPENSE_EDIT,
+        Permission.EXPENSE_DELETE, Permission.EXPENSE_APPROVE,
+    ],
 }
 
 
