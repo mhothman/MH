@@ -38,7 +38,8 @@ from routers import (
     ssl_router,
     workflow_router,
     document_router,
-    budget_router
+    budget_router,
+    budget_approval_router
 )
 
 # Configure logging
