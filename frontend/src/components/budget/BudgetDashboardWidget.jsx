@@ -64,9 +64,9 @@ export const BudgetDashboardWidget = ({ orgId }) => {
 
   // Calculate summary stats
   const totalBudget = budgets.reduce((sum, b) => sum + (b.total_budget || 0), 0);
-  const totalSpent = budgets.reduce((sum, b) => sum + (b.spent || 0), 0);
+  const totalSpent = budgets.reduce((sum, b) => sum + (b.spent_amount || 0), 0);
   const atRiskCount = budgets.filter(b => {
-    const percentUsed = b.total_budget > 0 ? (b.spent / b.total_budget) * 100 : 0;
+    const percentUsed = b.total_budget > 0 ? ((b.spent_amount || 0) / b.total_budget) * 100 : 0;
     return percentUsed >= (b.warning_threshold_percent || 80);
   }).length;
 
