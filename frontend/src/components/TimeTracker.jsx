@@ -229,7 +229,7 @@ export const TimeTracker = ({ taskId, taskTitle, onTimeLogged, canTrackTime = tr
                       </Badge>
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {log.started_at && format(new Date(log.started_at), "MMM d, yyyy 'at' h:mm a")}
+                      {log.created_at && format(new Date(log.created_at), "MMM d, yyyy 'at' h:mm a")}
                       {log.description && <span className="ml-2">• {log.description}</span>}
                     </div>
                   </div>
