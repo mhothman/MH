@@ -27,6 +27,8 @@ const ExecutiveDashboardPage = lazy(() => import("./pages/ExecutiveDashboardPage
 const DocumentsPage = lazy(() => import("./pages/DocumentsPage"));
 const NotificationCenterPage = lazy(() => import("./pages/NotificationCenterPage"));
 const BudgetApprovalsPage = lazy(() => import("./pages/BudgetApprovalsPage"));
+const CustomReportsPage = lazy(() => import("./pages/CustomReportsPage"));
+const APIMetricsPage = lazy(() => import("./pages/APIMetricsPage"));
 
 // Components
 import { AppLayout } from "./components/layout/AppLayout";
