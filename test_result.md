@@ -167,7 +167,7 @@ frontend:
     implemented: true
     working: "NA"
     file: "/app/frontend/src/components/budget/ProjectBudgetTab.jsx"
-    stuck_count: 4
+    stuck_count: 5
     priority: "high"
     needs_retesting: false
     status_history:
@@ -186,6 +186,9 @@ frontend:
       - working: "NA"
         agent: "testing"
         comment: "NEW TEST ATTEMPT WITH UPDATED CREDENTIALS - INVALID PASSWORD PROVIDED. Review request specifies: Regular User: mahmoudothman@msn.com / test123456, Finance User: ahmed@ahmed.com / Su@12345. TEST RESULTS: ✅ Finance user (ahmed@ahmed.com / Su@12345) - LOGIN SUCCESSFUL. User has 'finance' role with budget:approve permission. ❌ Regular user (mahmoudothman@msn.com / test123456) - LOGIN FAILED with 401 Invalid credentials. VERIFICATION: User mahmoudothman@msn.com EXISTS in org_3a0711d3f937 with team_member role (confirmed via org members API), but password 'test123456' is INCORRECT. SAME ISSUE AS PREVIOUS TESTS: Review request provides INVALID TEST CREDENTIALS. Cannot complete end-to-end testing without valid password for a regular user (team_member role without budget:approve permission). AVAILABLE USERS IN ORG: test@proflow.com, mahmoud@eduflow.work, mahmoud.hasan@su.edu.eg, mahmoudothman@msn.com, ahmed@ahmed.com - all have team_member role except ahmed who has finance role. CRITICAL BLOCKER: Need valid password for any team_member user to test budget approval request submission flow. CODE IMPLEMENTATION APPEARS CORRECT based on previous verification: (1) Request Change button visibility logic correct (line 680: !canApprove && budget), (2) orgId prop correctly passed (line 1149: project.org_id), (3) Budget Approvals page exists and loads for Finance users, (4) BudgetApprovalDialog component implemented, (5) Backend API endpoints exist. CANNOT VERIFY END-TO-END WORKFLOW without valid test credentials."
+      - working: "NA"
+        agent: "testing"
+        comment: "FINAL TEST ATTEMPT WITH NEW CREDENTIALS (testuser@proflow.com / Test123!) - BROWSER AUTOMATION TIMEOUT. Review request now provides: Regular User: testuser@proflow.com / Test123!, Finance User: ahmed@ahmed.com / Su@12345. VERIFICATION: ✅ testuser@proflow.com login SUCCESSFUL via API (returns access_token, user has team_member role, NOT super_admin). ✅ ahmed@ahmed.com login SUCCESSFUL. ❌ BROWSER AUTOMATION TOOL TIMEOUT: Playwright tests timed out after 300 seconds during execution. Unable to complete full end-to-end UI testing due to infrastructure timeout issues. CODE REVIEW FINDINGS: ✅ ProjectBudgetTab.jsx line 680: Request Change button visibility logic correct (!canApprove && budget). ✅ ProjectBudgetTab.jsx line 1149: orgId correctly passed as project.org_id. ✅ BudgetApprovalDialog.jsx: Dialog component properly implemented with form validation. ✅ BudgetApprovalsManager.jsx: Approval/rejection flow implemented with proper state management. ✅ AppLayout.jsx line 252: Budget Approvals link in sidebar with financeOnly flag. ✅ BudgetApprovalsPage.jsx: Page component properly structured. CONCLUSION: Code implementation appears CORRECT based on comprehensive code review. All components properly integrated. Button visibility logic, dialog forms, approval flow, and sidebar navigation all implemented correctly. BLOCKER: Cannot complete full UI testing due to browser automation infrastructure timeout. Recommend main agent to either: (1) Fix browser automation timeout issues, (2) Perform manual UI testing, or (3) Accept code review verification as sufficient given repeated credential and infrastructure issues across 5 test attempts."
   
   - task: "Finance Role Visibility in Team Settings"
     implemented: true
