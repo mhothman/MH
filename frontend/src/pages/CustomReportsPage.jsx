@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAppData } from "../context/AppDataContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
-import { FileDown, FileText, Calendar, Users, DollarSign, TrendingUp } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { LoadingSpinner } from "../components/ui/loading-spinner";
+import { FileDown, FileText, Calendar, Users, DollarSign, TrendingUp, Filter } from "lucide-react";
 import { toast } from "sonner";
 
 const REPORT_TYPES = [
@@ -15,12 +18,15 @@ const REPORT_TYPES = [
 ];
 
 export default function CustomReportsPage() {
-  const { currentOrgId } = useAppData();
+  const { currentOrgId, projects } = useAppData();
   const [selectedReport, setSelectedReport] = useState("time-tracking");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [groupBy, setGroupBy] = useState("project");
+  const [selectedProjects, setSelectedProjects] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [reportData, setReportData] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handleExport = async (format) => {
     if (!currentOrgId) {
@@ -77,6 +83,7 @@ export default function CustomReportsPage() {
     }
 
     setLoading(true);
+    setShowPreview(false);
     try {
       const API_URL = process.env.REACT_APP_BACKEND_URL;
       const token = localStorage.getItem('proflow_token');
@@ -89,6 +96,10 @@ export default function CustomReportsPage() {
         url += `&group_by=${groupBy}`;
       }
       
+      if (selectedProjects.length > 0) {
+        url += `&project_ids=${selectedProjects.join(',')}`;
+      }
+      
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -98,10 +109,12 @@ export default function CustomReportsPage() {
       if (!response.ok) throw new Error('Failed to generate report');
       
       const data = await response.json();
-      console.log('Report Preview:', data);
-      toast.success("Report generated - check console for preview");
+      setReportData(data);
+      setShowPreview(true);
+      toast.success("Report generated successfully");
     } catch (error) {
       toast.error(error.message || "Failed to generate report");
+      setReportData(null);
     } finally {
       setLoading(false);
     }
@@ -168,55 +181,92 @@ export default function CustomReportsPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Filters */}
-            {selectedReport === "time-tracking" && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Start Date</Label>
-                    <Input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                    />
+            <div className="space-y-4">
+              {selectedReport === "time-tracking" && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Start Date</Label>
+                      <Input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>End Date</Label>
+                      <Input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>End Date</Label>
-                    <Input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                    />
+                    <Label>Group By</Label>
+                    <Select value={groupBy} onValueChange={setGroupBy}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="project">Project</SelectItem>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="date">Date</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Group By</Label>
-                  <Select value={groupBy} onValueChange={setGroupBy}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="project">Project</SelectItem>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="date">Date</SelectItem>
-                    </SelectContent>
-                  </Select>
+                </>
+              )}
+              
+              {/* Project Filter (for all report types) */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Filter className="w-4 h-4" />
+                  Filter by Projects (Optional)
+                </Label>
+                <div className="flex flex-wrap gap-2 p-3 border rounded-lg min-h-[60px]">
+                  {projects.slice(0, 10).map((project) => (
+                    <Badge
+                      key={project.project_id}
+                      variant={selectedProjects.includes(project.project_id) ? "default" : "outline"}
+                      className="cursor-pointer"
+                      onClick={() => {
+                        if (selectedProjects.includes(project.project_id)) {
+                          setSelectedProjects(selectedProjects.filter(id => id !== project.project_id));
+                        } else {
+                          setSelectedProjects([...selectedProjects, project.project_id]);
+                        }
+                      }}
+                    >
+                      {project.name}
+                    </Badge>
+                  ))}
+                  {selectedProjects.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setSelectedProjects([])}
+                      className="h-6 text-xs"
+                    >
+                      Clear All
+                    </Button>
+                  )}
                 </div>
               </div>
-            )}
+            </div>
 
             {/* Actions */}
             <div className="flex gap-3 pt-4 border-t">
-              <Button onClick={handlePreview} disabled={loading} variant="outline">
-                Preview
+              <Button onClick={handlePreview} disabled={loading}>
+                {loading ? <LoadingSpinner size="sm" className="mr-2" /> : null}
+                Generate Report
               </Button>
-              <Button onClick={() => handleExport('csv')} disabled={loading}>
-                <FileDown className="w-4 h-4 mr-2" />
-                Export CSV
-              </Button>
-              <Button onClick={() => handleExport('json')} disabled={loading} variant="outline">
-                <FileDown className="w-4 h-4 mr-2" />
-                Export JSON
-              </Button>
+              {showPreview && reportData && (
+                <Button onClick={() => handleExport('csv')} disabled={loading} variant="outline">
+                  <FileDown className="w-4 h-4 mr-2" />
+                  Export CSV
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
