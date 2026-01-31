@@ -207,6 +207,109 @@ class TenantService:
             details={
                 "reason": reason,
                 "ip_address": ip_address,
+
+    
+    async def delete_organization(
+        self,
+        org_id: str,
+        deleted_by: str,
+        ip_address: Optional[str] = None
+    ) -> Tuple[bool, str]:
+        """Permanently delete an organization and all its data"""
+        db = get_database()
+        
+        org = await db.organizations.find_one({"org_id": org_id}, {"_id": 0})
+        if not org:
+            return False, "Organization not found"
+        
+        # Get counts for audit
+        projects_count = await db.projects.count_documents({"org_id": org_id})
+        tasks_count = await db.tasks.count_documents({"org_id": org_id})
+        members_count = await db.org_memberships.count_documents({"org_id": org_id})
+        
+        # Delete all related data
+        await db.projects.delete_many({"org_id": org_id})
+        await db.tasks.delete_many({"org_id": org_id})
+        await db.time_entries.delete_many({"org_id": org_id})
+        await db.comments.delete_many({"org_id": org_id})
+        await db.project_budgets.delete_many({"org_id": org_id})
+        await db.budget_transactions.delete_many({"org_id": org_id})
+        await db.expenses.delete_many({"org_id": org_id})
+        await db.org_memberships.delete_many({"org_id": org_id})
+        await db.documents.delete_many({"org_id": org_id})
+        await db.automations.delete_many({"org_id": org_id})
+        await db.workflows.delete_many({"org_id": org_id})
+        
+        # Delete organization
+        await db.organizations.delete_one({"org_id": org_id})
+        
+        # Audit log
+        await audit_service.log(
+            org_id=org_id,
+            user_id=deleted_by,
+            action="organization.delete",
+            resource_type="organization",
+            resource_id=org_id,
+            details={
+                "org_name": org["name"],
+                "projects_deleted": projects_count,
+                "tasks_deleted": tasks_count,
+                "members_removed": members_count,
+                "ip_address": ip_address,
+                "actor_type": "tenant_admin"
+            }
+        )
+        
+        logger.warning(f"Organization {org_id} ({org['name']}) DELETED by tenant admin {deleted_by} - {projects_count} projects, {tasks_count} tasks removed")
+        return True, f"Organization and all data deleted successfully. {projects_count} projects and {tasks_count} tasks removed."
+    
+    async def delete_user(
+        self,
+        user_id: str,
+        deleted_by: str,
+        ip_address: Optional[str] = None
+    ) -> Tuple[bool, str]:
+        """Delete a user from the system"""
+        db = get_database()
+        
+        user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+        if not user:
+            return False, "User not found"
+        
+        # Get membership for audit
+        membership = await db.org_memberships.find_one({"user_id": user_id}, {"_id": 0})
+        org_id = membership["org_id"] if membership else None
+        
+        # Remove from organization
+        if membership:
+            await db.org_memberships.delete_one({"user_id": user_id})
+        
+        # Delete user
+        await db.users.delete_one({"user_id": user_id})
+        
+        # Delete user's data
+        await db.time_entries.delete_many({"user_id": user_id})
+        await db.comments.delete_many({"user_id": user_id})
+        
+        # Audit log
+        if org_id:
+            await audit_service.log(
+                org_id=org_id,
+                user_id=deleted_by,
+                action="user.delete",
+                resource_type="user",
+                resource_id=user_id,
+                details={
+                    "user_email": user["email"],
+                    "user_name": user["name"],
+                    "ip_address": ip_address,
+                    "actor_type": "tenant_admin"
+                }
+            )
+        
+        logger.warning(f"User {user_id} ({user['email']}) DELETED by tenant admin {deleted_by}")
+        return True, "User deleted successfully"
+
                 "actor_type": "tenant_admin"
             }
         )
