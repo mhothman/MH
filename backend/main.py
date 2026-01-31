@@ -105,6 +105,8 @@ api_router.include_router(workflow_router.router, prefix="/workflows", tags=["Ta
 api_router.include_router(document_router.router, prefix="/documents", tags=["Documents"])
 api_router.include_router(budget_router.router, prefix="/budgets", tags=["Budgets"])
 api_router.include_router(budget_approval_router.router, prefix="/budget-approvals", tags=["Budget Approvals"])
+api_router.include_router(custom_reports_router.router, prefix="/custom-reports", tags=["Custom Reports"])
+api_router.include_router(metrics_router.router, prefix="/metrics", tags=["API Metrics"])
 
 app.include_router(api_router)
 
