@@ -169,7 +169,7 @@ class ChangeRoleRequest(BaseModel):
     @classmethod
     def validate_role(cls, v: Optional[str]) -> Optional[str]:
         if v is not None:
-            valid_roles = {"team_member", "project_manager", "org_admin", "super_admin"}
+            valid_roles = {"team_member", "project_manager", "finance", "org_admin", "super_admin", "viewer"}
             if v not in valid_roles:
                 raise ValueError(f'Invalid role. Must be one of: {", ".join(valid_roles)}')
         return v
