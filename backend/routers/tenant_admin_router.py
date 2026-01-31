@@ -176,28 +176,6 @@ async def get_organization_detail(org_id: str, request: Request):
     )
 
 
-@router.delete("/organizations/{org_id}")
-async def delete_organization(org_id: str, request: Request):
-    """Permanently delete an organization and all its data"""
-    tenant_admin = await require_tenant_admin(request)
-    
-    ip_address = request.client.host if request.client else None
-    
-    success, message = await tenant_service.delete_organization(
-        org_id=org_id,
-        deleted_by=tenant_admin["user_id"],
-        ip_address=ip_address
-    )
-    
-    if not success:
-        raise HTTPException(status_code=400, detail=message)
-    
-    return {"message": message}
-
-        suspension_reason=org.get("suspension_reason")
-    )
-
-
 @router.post("/organizations/{org_id}/suspend")
 async def suspend_organization(
     org_id: str,
