@@ -268,4 +268,5 @@ class MonitoredDatabase:
 
 
 # Convenience alias
-db = get_database
+def db() -> MonitoredDatabase:
+    return get_database()
