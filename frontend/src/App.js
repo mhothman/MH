@@ -31,6 +31,7 @@ const CustomReportsPage = lazy(() => import("./pages/CustomReportsPage"));
 const APIMetricsPage = lazy(() => import("./pages/APIMetricsPage"));
 const TenantAdminPage = lazy(() => import("./pages/TenantAdminPage"));
 const TenantAdminLoginPage = lazy(() => import("./pages/TenantAdminLoginPage"));
+const SeasonalEmployeesPage = lazy(() => import("./pages/SeasonalEmployeesPage"));
 
 // Components
 import { AppLayout } from "./components/layout/AppLayout";
@@ -200,6 +201,7 @@ const AppRouter = () => {
           <Route path="/budget-approvals" element={<ProtectedRoute><BudgetApprovalsPage /></ProtectedRoute>} />
           <Route path="/custom-reports" element={<ProtectedRoute><CustomReportsPage /></ProtectedRoute>} />
           <Route path="/api-metrics" element={<ProtectedRoute><APIMetricsPage /></ProtectedRoute>} />
+          <Route path="/seasonal-employees" element={<ProtectedRoute><SeasonalEmployeesPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
           
           {/* Tenant Admin Routes - Separate authentication */}
