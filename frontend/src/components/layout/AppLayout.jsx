@@ -40,6 +40,7 @@ import {
   DollarSign,
   Activity,
   FileBarChart,
+  UserCog,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -252,6 +253,7 @@ export const AppLayout = ({ children }) => {
     { icon: FolderKanban, label: "Projects", path: "/projects" },
     { icon: FileText, label: "Documents", path: "/documents" },
     { icon: Users, label: "Customers", path: "/customers" },
+    { icon: UserCog, label: "Seasonal Workers", path: "/seasonal-employees" },
     { icon: BarChart3, label: "Reports", path: "/reports" },
     { icon: DollarSign, label: "Budget Approvals", path: "/budget-approvals", financeOnly: true },
     { icon: PieChart, label: "Executive", path: "/executive-dashboard" },
