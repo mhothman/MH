@@ -18,7 +18,7 @@ const REPORT_TYPES = [
 ];
 
 export default function CustomReportsPage() {
-  const { currentOrgId, projects } = useAppData();
+  const { currentOrgId, projects, loadProjects } = useAppData();
   const [selectedReport, setSelectedReport] = useState("time-tracking");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -27,6 +27,13 @@ export default function CustomReportsPage() {
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
+
+  // Load projects on mount
+  useEffect(() => {
+    if (currentOrgId) {
+      loadProjects();
+    }
+  }, [currentOrgId, loadProjects]);
 
   const handleExport = async (format) => {
     if (!currentOrgId) {
