@@ -20,7 +20,9 @@ export default function TenantAdminPage() {
   const [orgUsers, setOrgUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("organizations");
   const [suspendDialog, setSuspendDialog] = useState({ open: false, type: null, target: null });
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, type: null, target: null });
   const [reason, setReason] = useState("");
   const [processing, setProcessing] = useState(false);
 
@@ -177,6 +179,68 @@ export default function TenantAdminPage() {
     }
   };
 
+  const handleDeleteOrg = async () => {
+    if (!deleteDialog.target) return;
+
+    setProcessing(true);
+    try {
+      const API_URL = process.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('tenant_admin_token');
+      
+      const response = await fetch(
+        `${API_URL}/api/tenant-admin/organizations/${deleteDialog.target.org_id}`,
+        {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      
+      if (!response.ok) throw new Error('Failed to delete organization');
+      
+      const result = await response.json();
+      toast.success(result.message || 'Organization deleted successfully');
+      setDeleteDialog({ open: false, type: null, target: null });
+      loadOrganizations();
+      if (selectedOrg?.org_id === deleteDialog.target.org_id) {
+        setSelectedOrg(null);
+        setOrgUsers([]);
+        setActiveTab("organizations");
+      }
+    } catch (error) {
+      toast.error(error.message || 'Failed to delete organization');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deleteDialog.target) return;
+
+    setProcessing(true);
+    try {
+      const API_URL = process.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('tenant_admin_token');
+      
+      const response = await fetch(
+        `${API_URL}/api/tenant-admin/users/${deleteDialog.target.user_id}`,
+        {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      
+      if (!response.ok) throw new Error('Failed to delete user');
+      
+      toast.success('User deleted successfully');
+      setDeleteDialog({ open: false, type: null, target: null });
+      loadOrgUsers(selectedOrg.org_id);
+    } catch (error) {
+      toast.error(error.message || 'Failed to delete user');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const filteredOrgs = organizations.filter(org =>
     org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     org.org_id.toLowerCase().includes(searchTerm.toLowerCase())
@@ -215,7 +279,7 @@ export default function TenantAdminPage() {
           </AlertDescription>
         </Alert>
 
-        <Tabs defaultValue="organizations" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="organizations">
               <Building2 className="w-4 h-4 mr-2" />
@@ -294,28 +358,47 @@ export default function TenantAdminPage() {
                               onClick={() => {
                                 setSelectedOrg(org);
                                 loadOrgUsers(org.org_id);
+                                setActiveTab("users");
                               }}
                             >
                               View Users
                             </Button>
                             {org.status === 'active' ? (
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => setSuspendDialog({ open: true, type: 'org', target: org })}
-                              >
-                                <Ban className="w-4 h-4 mr-1" />
-                                Suspend
-                              </Button>
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => setSuspendDialog({ open: true, type: 'org', target: org })}
+                                >
+                                  <Ban className="w-4 h-4 mr-1" />
+                                  Suspend
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => setDeleteDialog({ open: true, type: 'org', target: org })}
+                                >
+                                  Delete
+                                </Button>
+                              </>
                             ) : (
-                              <Button
-                                size="sm"
-                                variant="default"
-                                onClick={() => handleActivateOrg(org)}
-                              >
-                                <PlayCircle className="w-4 h-4 mr-1" />
-                                Activate
-                              </Button>
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  onClick={() => handleActivateOrg(org)}
+                                >
+                                  <PlayCircle className="w-4 h-4 mr-1" />
+                                  Activate
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => setDeleteDialog({ open: true, type: 'org', target: org })}
+                                >
+                                  Delete
+                                </Button>
+                              </>
                             )}
                           </div>
                         </TableCell>
@@ -384,23 +467,43 @@ export default function TenantAdminPage() {
                           </TableCell>
                           <TableCell className="text-right">
                             {user.status === 'active' ? (
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => setSuspendDialog({ open: true, type: 'user', target: user })}
-                              >
-                                <Ban className="w-4 h-4 mr-1" />
-                                Suspend
-                              </Button>
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => setSuspendDialog({ open: true, type: 'user', target: user })}
+                                >
+                                  <Ban className="w-4 h-4 mr-1" />
+                                  Suspend
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => setDeleteDialog({ open: true, type: 'user', target: user })}
+                                  className="ml-2"
+                                >
+                                  Delete
+                                </Button>
+                              </>
                             ) : (
-                              <Button
-                                size="sm"
-                                variant="default"
-                                onClick={() => handleActivateUser(user)}
-                              >
-                                <PlayCircle className="w-4 h-4 mr-1" />
-                                Activate
-                              </Button>
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  onClick={() => handleActivateUser(user)}
+                                >
+                                  <PlayCircle className="w-4 h-4 mr-1" />
+                                  Activate
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => setDeleteDialog({ open: true, type: 'user', target: user })}
+                                  className="ml-2"
+                                >
+                                  Delete
+                                </Button>
+                              </>
                             )}
                           </TableCell>
                         </TableRow>
