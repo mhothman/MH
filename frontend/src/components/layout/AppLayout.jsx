@@ -253,7 +253,6 @@ export const AppLayout = ({ children }) => {
     { icon: FileText, label: "Documents", path: "/documents" },
     { icon: Users, label: "Customers", path: "/customers" },
     { icon: BarChart3, label: "Reports", path: "/reports" },
-    { icon: FileBarChart, label: "Custom Reports", path: "/custom-reports" },
     { icon: DollarSign, label: "Budget Approvals", path: "/budget-approvals", financeOnly: true },
     { icon: PieChart, label: "Executive", path: "/executive-dashboard" },
     { icon: Activity, label: "API Metrics", path: "/api-metrics" },
