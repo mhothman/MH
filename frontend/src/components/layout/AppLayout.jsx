@@ -5,6 +5,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { getOrganizations } from "../../api/organizations";
 import { getNotifications, markNotificationRead, markAllNotificationsRead } from "../../api/notifications";
 import { connectNotificationsWS } from "../../api/websocket";
+import { getMyPermissions, hasPermission, Permission } from "../../api";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
