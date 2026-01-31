@@ -98,7 +98,7 @@ async def get_project_progress_report(
     org_id: str,
     project_ids: Optional[str] = None,
     status: Optional[str] = None,
-    export_format: Optional[str] = Query(None, regex="^(csv|json)$")
+    export_format: Optional[str] = Query(None, regex="^(csv)$")
 ):
     """Generate project progress report"""
     user = await require_auth(request)
@@ -111,6 +111,17 @@ async def get_project_progress_report(
         raise HTTPException(status_code=403, detail="Permission denied")
     
     project_list = project_ids.split(",") if project_ids else None
+    
+    report_data = await report_service.generate_project_progress_report(
+        org_id=org_id,
+        project_ids=project_list,
+        status_filter=status
+    )
+    
+    if export_format == "csv":
+        return _export_projects_to_csv(report_data)
+    
+    return report_data
 
 
 
