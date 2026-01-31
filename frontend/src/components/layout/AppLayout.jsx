@@ -57,6 +57,7 @@ export const AppLayout = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [userPermissions, setUserPermissions] = useState([]);
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
 
