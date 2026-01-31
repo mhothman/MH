@@ -1008,6 +1008,33 @@ class BudgetService:
                 send_email=True
             )
 
+    
+    async def check_budget_lock(self, project_id: str) -> Dict:
+        """
+        Check if project budget is locked and prevents new operations
+        Returns: {is_locked: bool, message: str, budget_id: str}
+        """
+        db = get_database()
+        
+        budget = await db.project_budgets.find_one(
+            {"project_id": project_id},
+            {"_id": 0}
+        )
+        
+        if not budget:
+            return {"is_locked": False, "message": "No budget set", "budget_id": None}
+        
+        # Check if hard limit is enabled and budget is locked
+        if budget.get("hard_limit") and budget.get("status") == "locked":
+            return {
+                "is_locked": True,
+                "message": f"Project budget is locked. Contact Finance to increase budget or remove hard limit.",
+                "budget_id": budget["budget_id"],
+                "budget_status": budget["status"]
+            }
+        
+        return {"is_locked": False, "message": "Budget OK", "budget_id": budget["budget_id"]}
+
 
 # Create singleton instance
 budget_service = BudgetService()
