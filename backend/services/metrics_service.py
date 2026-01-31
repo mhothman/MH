@@ -1,9 +1,12 @@
 """API Metrics Service - Track and analyze API performance"""
 import logging
+import io
+import csv
 from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any
 from collections import defaultdict
 
+from fastapi.responses import StreamingResponse
 from core.database import get_database
 
 logger = logging.getLogger(__name__)
