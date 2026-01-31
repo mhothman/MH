@@ -462,6 +462,160 @@ class ReportService:
         utilization.sort(key=lambda x: x["active_tasks"], reverse=True)
         return utilization
 
+    
+    async def generate_time_tracking_report(
+        self,
+        org_id: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        project_ids: Optional[List[str]] = None,
+        user_ids: Optional[List[str]] = None,
+        group_by: str = "project"
+    ) -> Dict[str, Any]:
+        """Generate time tracking report"""
+        db = get_database()
+        
+        query = {}
+        if start_date:
+            query["date"] = {"$gte": start_date}
+        if end_date:
+            if "date" in query:
+                query["date"]["$lte"] = end_date
+            else:
+                query["date"] = {"$lte": end_date}
+        if project_ids:
+            tasks = await db.tasks.find(
+                {"project_id": {"$in": project_ids}},
+                {"_id": 0, "task_id": 1}
+            ).to_list(1000)
+            query["task_id"] = {"$in": [t["task_id"] for t in tasks]}
+        if user_ids:
+            query["user_id"] = {"$in": user_ids}
+        
+        entries = await db.time_entries.find(query, {"_id": 0}).to_list(10000)
+        total_hours = round(sum(e.get("duration_minutes", 0) for e in entries) / 60, 2)
+        
+        if group_by == "project":
+            task_ids = list(set(e["task_id"] for e in entries))
+            if not task_ids:
+                return {"grouped_data": [], "total_hours": 0}
+                
+            tasks = await db.tasks.find(
+                {"task_id": {"$in": task_ids}},
+                {"_id": 0, "task_id": 1, "project_id": 1}
+            ).to_list(len(task_ids))
+            task_map = {t["task_id"]: t["project_id"] for t in tasks}
+            
+            project_ids_list = list(set(task_map.values()))
+            projects = await db.projects.find(
+                {"project_id": {"$in": project_ids_list}},
+                {"_id": 0, "project_id": 1, "name": 1}
+            ).to_list(len(project_ids_list))
+            project_names = {p["project_id"]: p["name"] for p in projects}
+            
+            grouped = {}
+            for entry in entries:
+                proj_id = task_map.get(entry["task_id"])
+                if proj_id:
+                    if proj_id not in grouped:
+                        grouped[proj_id] = {
+                            "project_name": project_names.get(proj_id, "Unknown"),
+                            "total_minutes": 0,
+                            "entry_count": 0
+                        }
+                    grouped[proj_id]["total_minutes"] += entry.get("duration_minutes", 0)
+                    grouped[proj_id]["entry_count"] += 1
+            
+            for g in grouped.values():
+                g["total_hours"] = round(g["total_minutes"] / 60, 2)
+            
+            return {"grouped_data": list(grouped.values()), "total_hours": total_hours}
+        
+        return {"entries": entries, "total_hours": total_hours}
+    
+    async def generate_budget_summary_report(
+        self,
+        org_id: str,
+        project_ids: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Generate budget summary report"""
+        db = get_database()
+        
+        query = {"org_id": org_id}
+        if project_ids:
+            query["project_id"] = {"$in": project_ids}
+        
+        budgets = await db.project_budgets.find(query, {"_id": 0}).to_list(1000)
+        
+        project_ids_list = [b["project_id"] for b in budgets]
+        if project_ids_list:
+            projects = await db.projects.find(
+                {"project_id": {"$in": project_ids_list}},
+                {"_id": 0, "project_id": 1, "name": 1}
+            ).to_list(len(project_ids_list))
+            projects_map = {p["project_id"]: p["name"] for p in projects}
+            
+            for budget in budgets:
+                budget["project_name"] = projects_map.get(budget["project_id"], "Unknown")
+        
+        total_budget = sum(b.get("total_budget", 0) for b in budgets)
+        total_spent = sum(b.get("spent_amount", 0) for b in budgets)
+        total_remaining = sum(b.get("remaining_amount", 0) for b in budgets)
+        
+        return {
+            "budgets": budgets,
+            "summary": {
+                "total_budget": total_budget,
+                "total_spent": total_spent,
+                "total_remaining": total_remaining,
+                "total_projects": len(budgets),
+                "exceeded_count": len([b for b in budgets if b.get("status") == "exceeded"]),
+                "warning_count": len([b for b in budgets if b.get("status") == "warning"]),
+            }
+        }
+    
+    async def generate_project_progress_report(
+        self,
+        org_id: str,
+        project_ids: Optional[List[str]] = None,
+        status_filter: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Generate project progress report"""
+        db = get_database()
+        
+        query = {"org_id": org_id}
+        if project_ids:
+            query["project_id"] = {"$in": project_ids}
+        if status_filter:
+            query["status"] = status_filter
+        
+        projects = await db.projects.find(query, {"_id": 0}).to_list(1000)
+        
+        for project in projects:
+            tasks = await db.tasks.find(
+                {"project_id": project["project_id"]},
+                {"_id": 0, "status": 1}
+            ).to_list(1000)
+            
+            project["total_tasks"] = len(tasks)
+            project["completed_tasks"] = len([t for t in tasks if t.get("status") == "done"])
+            project["in_progress_tasks"] = len([t for t in tasks if t.get("status") == "in_progress"])
+            project["todo_tasks"] = len([t for t in tasks if t.get("status") == "todo"])
+            project["completion_rate"] = (
+                (project["completed_tasks"] / project["total_tasks"] * 100) 
+                if project["total_tasks"] > 0 else 0
+            )
+        
+        return {
+            "projects": projects,
+            "summary": {
+                "total_projects": len(projects),
+                "avg_completion_rate": sum(p.get("completion_rate", 0) for p in projects) / len(projects) if projects else 0,
+                "total_tasks": sum(p.get("total_tasks", 0) for p in projects),
+                "total_completed": sum(p.get("completed_tasks", 0) for p in projects)
+            }
+        }
+
 
 # Singleton instance
 report_service = ReportService()
