@@ -613,6 +613,8 @@ class ReportService:
                 "avg_completion_rate": sum(p.get("completion_rate", 0) for p in projects) / len(projects) if projects else 0,
                 "total_tasks": sum(p.get("total_tasks", 0) for p in projects),
                 "total_completed": sum(p.get("completed_tasks", 0) for p in projects)
+            }
+        }
 
     
     async def generate_task_completion_report(
