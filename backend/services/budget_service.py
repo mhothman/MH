@@ -946,13 +946,12 @@ class BudgetService:
         }, {"_id": 0, "user_id": 1}).to_list(100)
         
         for member in memberships:
-            await notification_service.create_notification(
+            await notification_service.create(
                 user_id=member["user_id"],
-                notification_type=notification_type,
+                type=notification_type,
                 title=title,
                 message=message,
                 link=f"/projects/{budget['project_id']}?tab=budget",
-                org_id=budget["org_id"],
                 send_email=True
             )
         
