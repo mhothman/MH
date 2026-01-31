@@ -362,7 +362,9 @@ export const AppLayout = ({ children }) => {
 
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1">
-          {navItems.map((item) => (
+          {navItems
+            .filter(item => !item.financeOnly || hasPermission(userPermissions, Permission.BUDGET_APPROVE))
+            .map((item) => (
             <Link
               key={item.path}
               to={item.path}
