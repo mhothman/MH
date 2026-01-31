@@ -39,7 +39,9 @@ from routers import (
     workflow_router,
     document_router,
     budget_router,
-    budget_approval_router
+    budget_approval_router,
+    custom_reports_router,
+    metrics_router
 )
 
 # Configure logging
