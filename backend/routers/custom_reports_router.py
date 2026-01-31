@@ -111,6 +111,136 @@ async def get_project_progress_report(
         raise HTTPException(status_code=403, detail="Permission denied")
     
     project_list = project_ids.split(",") if project_ids else None
+
+
+
+@router.get("/task-completion")
+async def get_task_completion_report(
+    request: Request,
+    org_id: str,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    project_ids: Optional[str] = None,
+    export_format: Optional[str] = Query(None, regex="^(csv)$")
+):
+    """Generate task completion rates report"""
+    user = await require_auth(request)
+    
+    membership = await get_user_org_membership(user["user_id"], org_id)
+    if not membership:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    if not has_permission(membership["role"], Permission.REPORT_VIEW):
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    project_list = project_ids.split(",") if project_ids else None
+    
+    report_data = await report_service.generate_task_completion_report(
+        org_id=org_id,
+        start_date=start_date,
+        end_date=end_date,
+        project_ids=project_list
+    )
+    
+    if export_format == "csv":
+        return _export_projects_to_csv(report_data)
+    
+    return report_data
+
+
+@router.get("/delays-bottlenecks")
+async def get_delays_bottlenecks_report(
+    request: Request,
+    org_id: str,
+    project_ids: Optional[str] = None,
+    export_format: Optional[str] = Query(None, regex="^(csv)$")
+):
+    """Generate delays and bottlenecks report"""
+    user = await require_auth(request)
+    
+    membership = await get_user_org_membership(user["user_id"], org_id)
+    if not membership:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    if not has_permission(membership["role"], Permission.REPORT_VIEW):
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    project_list = project_ids.split(",") if project_ids else None
+    
+    report_data = await report_service.generate_delays_bottlenecks_report(
+        org_id=org_id,
+        project_ids=project_list
+    )
+    
+    if export_format == "csv":
+        return _export_delays_to_csv(report_data)
+    
+    return report_data
+
+
+@router.get("/team-productivity")
+async def get_team_productivity_report(
+    request: Request,
+    org_id: str,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    project_ids: Optional[str] = None,
+    export_format: Optional[str] = Query(None, regex="^(csv)$")
+):
+    """Generate team productivity report"""
+    user = await require_auth(request)
+    
+    membership = await get_user_org_membership(user["user_id"], org_id)
+    if not membership:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    if not has_permission(membership["role"], Permission.REPORT_VIEW):
+        raise HTTPException(status_code=403, detail="Permission denied")
+    
+    project_list = project_ids.split(",") if project_ids else None
+    
+    report_data = await report_service.generate_team_productivity_report(
+        org_id=org_id,
+        start_date=start_date,
+        end_date=end_date,
+        project_ids=project_list
+    )
+    
+    if export_format == "csv":
+        return _export_to_csv(report_data, "team_productivity")
+    
+    return report_data
+
+
+def _export_delays_to_csv(report_data: dict) -> StreamingResponse:
+    """Export delays and bottlenecks report to CSV"""
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    writer.writerow(["Task", "Project", "Due Date", "Status", "Days Delayed"])
+    
+    for task in report_data.get("delayed_tasks", []):
+        writer.writerow([
+            task.get("title", ""),
+            task.get("project_name", ""),
+            task.get("due_date", ""),
+            task.get("status", ""),
+            task.get("days_delayed", 0)
+        ])
+    
+    summary = report_data.get("summary", {})
+    writer.writerow([])
+    writer.writerow(["Total Delayed Tasks", summary.get("total_delayed", 0)])
+    writer.writerow(["Average Delay", f"{summary.get('avg_delay_days', 0):.1f} days"])
+    writer.writerow(["Bottleneck Projects", summary.get("bottleneck_count", 0)])
+    
+    output.seek(0)
+    return StreamingResponse(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=delays_bottlenecks_{datetime.now().strftime('%Y%m%d')}.csv"}
+    )
+
     
     report_data = await report_service.generate_project_progress_report(
         org_id=org_id,
