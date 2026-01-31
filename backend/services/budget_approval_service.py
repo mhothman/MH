@@ -136,12 +136,13 @@ class BudgetApprovalService:
         await self._apply_budget_change(approval)
         
         # Notify requester
-        await notification_service.create_notification(
+        await notification_service.create(
             user_id=approval["requested_by"],
+            type="budget_change",
             title="Budget Change Approved",
             message=f"Your budget change request for {approval['project_name']} has been approved by {reviewer_name}.",
-            type="budget_change",
-            data={"approval_id": approval_id, "budget_id": approval["budget_id"]}
+            link=f"/projects/{approval['project_id']}",
+            metadata={"approval_id": approval_id, "budget_id": approval["budget_id"]}
         )
         
         # Log audit
