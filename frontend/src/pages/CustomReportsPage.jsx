@@ -255,6 +255,31 @@ export default function CustomReportsPage() {
               </div>
             </div>
 
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button
+                onClick={handlePreview}
+                disabled={loading}
+                className="flex-1"
+              >
+                {loading ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Generating...
+                  </>
+                ) : (
+                  "Generate Report"
+                )}
+              </Button>
+              
+              {showPreview && reportData && (
+                <Button
+                  onClick={() => handleExport('csv')}
+                  disabled={loading}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <FileDown className="w-4 h-4" />
                   Export CSV
                 </Button>
               )}
