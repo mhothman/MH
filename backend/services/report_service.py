@@ -692,11 +692,25 @@ class ReportService:
         
         delayed_tasks = []
         for task in tasks:
-            due_date = datetime.fromisoformat(task["due_date"].replace("Z", "+00:00"))
-            if task.get("status") != "done" and due_date < now:
-                days_delayed = (now - due_date).days
-                task["days_delayed"] = days_delayed
-                delayed_tasks.append(task)
+            try:
+                due_date_str = task["due_date"]
+                # Handle both string and datetime objects
+                if isinstance(due_date_str, str):
+                    due_date = datetime.fromisoformat(due_date_str.replace("Z", "+00:00"))
+                else:
+                    due_date = due_date_str
+                
+                # Ensure timezone aware
+                if due_date.tzinfo is None:
+                    due_date = due_date.replace(tzinfo=timezone.utc)
+                
+                if task.get("status") != "done" and due_date < now:
+                    days_delayed = (now - due_date).days
+                    task["days_delayed"] = days_delayed
+                    delayed_tasks.append(task)
+            except Exception as e:
+                logger.warning(f"Error processing task {task.get('task_id')}: {e}")
+                continue
         
         # Get project names
         project_ids_list = list(set(t["project_id"] for t in delayed_tasks))
