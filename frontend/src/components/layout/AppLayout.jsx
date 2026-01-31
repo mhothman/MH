@@ -103,8 +103,10 @@ export const AppLayout = ({ children }) => {
   const loadPermissions = useCallback(async () => {
     if (!currentOrg?.org_id) return;
     try {
-      const perms = await getMyPermissions(currentOrg.org_id);
-      setUserPermissions(perms || []);
+      const data = await getMyPermissions(currentOrg.org_id);
+      // API returns {role: "finance", permissions: [...]}
+      const perms = data?.permissions || data || [];
+      setUserPermissions(perms);
     } catch (error) {
       console.error("Failed to load permissions:", error);
       setUserPermissions([]);
