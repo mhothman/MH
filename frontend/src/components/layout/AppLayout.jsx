@@ -171,6 +171,13 @@ export const AppLayout = ({ children }) => {
     initializeData();
   }, []); // Empty dep array - only run on mount
 
+  // Load permissions when org changes
+  useEffect(() => {
+    if (currentOrg?.org_id) {
+      loadPermissions();
+    }
+  }, [currentOrg?.org_id, loadPermissions]);
+
   // WebSocket connection
   useEffect(() => {
     connectWebSocket();
