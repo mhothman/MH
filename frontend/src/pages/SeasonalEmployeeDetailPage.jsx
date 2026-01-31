@@ -30,7 +30,7 @@ import { format } from "date-fns";
 export default function SeasonalEmployeeDetailPage() {
   const { employeeId } = useParams();
   const navigate = useNavigate();
-  const { projects, currentOrgId } = useAppData();
+  const { projects, currentOrgId, loadProjects } = useAppData();
   const [employee, setEmployee] = useState(null);
   const [assignments, setAssignments] = useState([]);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
@@ -50,6 +50,10 @@ export default function SeasonalEmployeeDetailPage() {
     time_out: "16:00"
   });
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadProjects(); // Ensure projects are loaded for assignment dialog
+  }, []);
 
   useEffect(() => {
     if (employeeId) {
