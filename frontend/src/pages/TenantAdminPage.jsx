@@ -579,6 +579,78 @@ export default function TenantAdminPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialog.open} onOpenChange={(open) => !processing && setDeleteDialog({ ...deleteDialog, open })}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-red-600">
+                <AlertTriangle className="w-5 h-5" />
+                Permanently Delete {deleteDialog.type === 'org' ? 'Organization' : 'User'}?
+              </DialogTitle>
+              <DialogDescription>
+                {deleteDialog.type === 'org' ? (
+                  <>
+                    <p className="font-semibold text-red-600 mb-2">⚠️ WARNING: This action CANNOT be undone!</p>
+                    <p>Deleting <strong>{deleteDialog.target?.name}</strong> will permanently remove:</p>
+                    <ul className="list-disc list-inside mt-2 space-y-1 text-red-700">
+                      <li>All projects ({deleteDialog.target?.total_projects || 0})</li>
+                      <li>All tasks ({deleteDialog.target?.total_tasks || 0})</li>
+                      <li>All members ({deleteDialog.target?.total_members || 0})</li>
+                      <li>All time entries, budgets, documents</li>
+                      <li>Complete organization data</li>
+                    </ul>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold text-red-600 mb-2">⚠️ WARNING: This action CANNOT be undone!</p>
+                    <p>Deleting <strong>{deleteDialog.target?.name}</strong> ({deleteDialog.target?.email}) will:</p>
+                    <ul className="list-disc list-inside mt-2 space-y-1 text-red-700">
+                      <li>Remove user from organization</li>
+                      <li>Delete all user's time entries</li>
+                      <li>Remove user's comments and data</li>
+                      <li>Cannot be recovered</li>
+                    </ul>
+                  </>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="bg-red-50 dark:bg-red-950/30 border-2 border-red-200 dark:border-red-800 rounded-lg p-4">
+              <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                Type "{deleteDialog.type === 'org' ? deleteDialog.target?.name : deleteDialog.target?.email}" to confirm deletion:
+              </p>
+              <Input
+                className="mt-2"
+                placeholder={deleteDialog.type === 'org' ? deleteDialog.target?.name : deleteDialog.target?.email}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+              />
+            </div>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => { 
+                  setDeleteDialog({ open: false, type: null, target: null }); 
+                  setReason(""); 
+                }} 
+                disabled={processing}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={deleteDialog.type === 'org' ? handleDeleteOrg : handleDeleteUser}
+                disabled={
+                  processing || 
+                  reason !== (deleteDialog.type === 'org' ? deleteDialog.target?.name : deleteDialog.target?.email)
+                }
+              >
+                {processing ? <LoadingSpinner size="sm" className="mr-2" /> : null}
+                Permanently Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
