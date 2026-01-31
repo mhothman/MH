@@ -313,12 +313,13 @@ class BudgetApprovalService:
         # Send notification to each finance user
         for member in finance_members:
             try:
-                await notification_service.create_notification(
+                await notification_service.create(
                     user_id=member["user_id"],
+                    type="budget_approval",
                     title="Budget Approval Required",
                     message=f"A budget change request for {approval['project_name']} requires your approval.",
-                    type="budget_approval",
-                    data={
+                    link="/budget-approvals",
+                    metadata={
                         "approval_id": approval["approval_id"],
                         "budget_id": approval["budget_id"],
                         "change_type": approval["change_type"]
