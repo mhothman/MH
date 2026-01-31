@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the new Budget Dashboard Widget feature on the main dashboard"
+user_problem_statement: "Test the improved Custom Reports feature with GUI preview and project filtering"
 
 backend:
   - task: "Include user details in time entries API response"
