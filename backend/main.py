@@ -41,7 +41,8 @@ from routers import (
     budget_router,
     budget_approval_router,
     custom_reports_router,
-    metrics_router
+    metrics_router,
+    tenant_admin_router
 )
 
 # Configure logging
@@ -107,6 +108,7 @@ api_router.include_router(budget_router.router, prefix="/budgets", tags=["Budget
 api_router.include_router(budget_approval_router.router, prefix="/budget-approvals", tags=["Budget Approvals"])
 api_router.include_router(custom_reports_router.router, prefix="/custom-reports", tags=["Custom Reports"])
 api_router.include_router(metrics_router.router, prefix="/metrics", tags=["API Metrics"])
+api_router.include_router(tenant_admin_router.router, prefix="/tenant-admin", tags=["Tenant Administration"])
 
 app.include_router(api_router)
 
