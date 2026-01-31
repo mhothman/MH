@@ -39,7 +39,7 @@ def create_tenant_token(user: dict) -> str:
         "exp": datetime.now(timezone.utc) + timedelta(days=7),
         "iat": datetime.now(timezone.utc)
     }
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+    return jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
 
 
 async def require_tenant_admin(request: Request) -> dict:
@@ -51,7 +51,7 @@ async def require_tenant_admin(request: Request) -> dict:
     token = auth_header.replace("Bearer ", "")
     
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
         
         # Verify this is a tenant admin token
         if payload.get("type") != "tenant_admin":
