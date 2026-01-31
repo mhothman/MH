@@ -39,6 +39,17 @@ async def start_timer(data: TimerStart, request: Request):
     if not has_permission(membership["role"], Permission.TIME_CREATE):
         raise HTTPException(status_code=403, detail="Permission denied: cannot track time")
     
+    # Check budget hard stop
+    from services.budget_service import budget_service
+    budget_check = await budget_service.check_budget_lock(task["project_id"])
+    if budget_check["is_locked"]:
+        # Check if user has override permission
+        if not has_permission(membership["role"], Permission.BUDGET_OVERRIDE):
+            raise HTTPException(
+                status_code=403, 
+                detail=f"Budget exceeded. Cannot start timer. {budget_check['message']}"
+            )
+    
     success, message, timer = await time_service.start_timer(
         user_id=user["user_id"],
         task_id=data.task_id,
