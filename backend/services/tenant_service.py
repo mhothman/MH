@@ -222,6 +222,14 @@ class TenantService:
             details={
                 "reason": reason,
                 "ip_address": ip_address,
+                "actor_type": "tenant_admin"
+            }
+        )
+        
+        # TODO: Force logout all organization users (invalidate sessions)
+        
+        logger.info(f"Organization {org_id} suspended by {suspended_by}")
+        return True, "Organization suspended successfully"
 
     
     async def delete_organization(
