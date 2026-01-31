@@ -15,6 +15,7 @@ from core.config import settings
 from core.database import get_database
 from core.rate_limiter import RateLimitMiddleware
 from core.request_logger import RequestLoggingMiddleware, get_request_metrics, reset_request_metrics
+from core.org_status_middleware import OrganizationStatusMiddleware
 
 # Import routers
 from routers import (
@@ -61,6 +62,9 @@ app = FastAPI(
 
 # Add Request Logging Middleware (first to capture all requests)
 app.add_middleware(RequestLoggingMiddleware)
+
+# Add Organization Status Check Middleware
+app.add_middleware(OrganizationStatusMiddleware)
 
 # Add Rate Limiting Middleware
 app.add_middleware(RateLimitMiddleware)
