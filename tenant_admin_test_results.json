@@ -1,161 +1,161 @@
 {
   "summary": {
     "total_tests": 25,
-    "passed_tests": 23,
-    "failed_tests": 2,
-    "success_rate": 92.0,
-    "timestamp": "2026-01-31T18:49:40.159722"
+    "passed_tests": 24,
+    "failed_tests": 1,
+    "success_rate": 96.0,
+    "timestamp": "2026-01-31T18:50:09.559209"
   },
   "test_details": [
     {
       "test": "1.1 Tenant admin login successful",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:38.768690"
+      "timestamp": "2026-01-31T18:50:08.040240"
     },
     {
       "test": "1.2 Token type is 'tenant_admin'",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:38.768856"
+      "timestamp": "2026-01-31T18:50:08.040402"
     },
     {
       "test": "1.3 User role is 'tenant_super_admin'",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:38.768875"
+      "timestamp": "2026-01-31T18:50:08.040409"
     },
     {
       "test": "1.4 Tenant info returned",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:38.768881"
+      "timestamp": "2026-01-31T18:50:08.040414"
     },
     {
       "test": "1.5 Get tenant admin profile",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:38.810282"
+      "timestamp": "2026-01-31T18:50:08.116845"
     },
     {
       "test": "1.6 Profile has all required fields",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:38.854060"
+      "timestamp": "2026-01-31T18:50:08.151273"
     },
     {
       "test": "2.1 List all organizations",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:38.918737"
+      "timestamp": "2026-01-31T18:50:08.211949"
     },
     {
       "test": "2.2 All orgs belong to tenant",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:38.981802"
+      "timestamp": "2026-01-31T18:50:08.275229"
     },
     {
       "test": "2.3 Organizations have stats",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.040380"
+      "timestamp": "2026-01-31T18:50:08.340402"
     },
     {
       "test": "2.4 Get organization detail",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.079004"
+      "timestamp": "2026-01-31T18:50:08.380671"
     },
     {
       "test": "2.5 Org detail has complete info",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.119390"
+      "timestamp": "2026-01-31T18:50:08.418610"
     },
     {
       "test": "2.6 Suspend organization",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.163537"
+      "timestamp": "2026-01-31T18:50:08.457953"
     },
     {
       "test": "2.7 Org status changed to 'suspended'",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.208639"
+      "timestamp": "2026-01-31T18:50:08.498508"
     },
     {
       "test": "2.8 Suspended org blocks access",
       "success": false,
-      "details": "Could not login as org user for testing",
-      "timestamp": "2026-01-31T18:49:39.471050"
+      "details": "Expected 403, got 401",
+      "timestamp": "2026-01-31T18:50:08.839454"
     },
     {
       "test": "2.9 Activate organization",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.515553"
+      "timestamp": "2026-01-31T18:50:08.878249"
     },
     {
       "test": "2.10 Org status back to 'active'",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.557888"
+      "timestamp": "2026-01-31T18:50:08.919872"
     },
     {
       "test": "3.1 Get organization users",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.594823"
+      "timestamp": "2026-01-31T18:50:08.959357"
     },
     {
       "test": "3.2 Users have complete details",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.635832"
+      "timestamp": "2026-01-31T18:50:08.999058"
     },
     {
       "test": "3.3 Suspend user",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.676054"
+      "timestamp": "2026-01-31T18:50:09.039911"
     },
     {
       "test": "3.4 User status='suspended'",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.715222"
+      "timestamp": "2026-01-31T18:50:09.077720"
     },
     {
       "test": "3.5 Activate user",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.757438"
+      "timestamp": "2026-01-31T18:50:09.116213"
     },
     {
       "test": "3.6 User status='active'",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:39.800215"
+      "timestamp": "2026-01-31T18:50:09.154235"
     },
     {
       "test": "4.1 Org user cannot access tenant endpoints",
-      "success": false,
-      "details": "Could not login as org user",
-      "timestamp": "2026-01-31T18:49:40.058242"
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T18:50:09.449793"
     },
     {
       "test": "4.2 Tenant admin can view org APIs",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T18:49:40.121410"
+      "timestamp": "2026-01-31T18:50:09.520241"
     },
     {
       "test": "4.3 Audit logs created",
       "success": true,
       "details": "Audit log verification skipped",
-      "timestamp": "2026-01-31T18:49:40.159682"
+      "timestamp": "2026-01-31T18:50:09.559171"
     }
   ]
 }
