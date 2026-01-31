@@ -613,6 +613,207 @@ class ReportService:
                 "avg_completion_rate": sum(p.get("completion_rate", 0) for p in projects) / len(projects) if projects else 0,
                 "total_tasks": sum(p.get("total_tasks", 0) for p in projects),
                 "total_completed": sum(p.get("completed_tasks", 0) for p in projects)
+
+    
+    async def generate_task_completion_report(
+        self,
+        org_id: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        project_ids: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Generate task completion rate report"""
+        db = get_database()
+        
+        query = {"org_id": org_id}
+        if project_ids:
+            query["project_id"] = {"$in": project_ids}
+        
+        projects = await db.projects.find(query, {"_id": 0}).to_list(1000)
+        
+        for project in projects:
+            task_query = {"project_id": project["project_id"]}
+            if start_date or end_date:
+                task_query["created_at"] = {}
+                if start_date:
+                    task_query["created_at"]["$gte"] = start_date
+                if end_date:
+                    task_query["created_at"]["$lte"] = end_date
+            
+            tasks = await db.tasks.find(task_query, {"_id": 0, "status": 1, "created_at": 1, "updated_at": 1}).to_list(1000)
+            
+            project["total_tasks"] = len(tasks)
+            project["completed_tasks"] = len([t for t in tasks if t.get("status") == "done"])
+            project["in_progress_tasks"] = len([t for t in tasks if t.get("status") == "in_progress"])
+            project["todo_tasks"] = len([t for t in tasks if t.get("status") == "todo"])
+            project["completion_rate"] = (
+                (project["completed_tasks"] / project["total_tasks"] * 100) 
+                if project["total_tasks"] > 0 else 0
+            )
+            
+            # Calculate average completion time
+            completed = [t for t in tasks if t.get("status") == "done" and t.get("created_at") and t.get("updated_at")]
+            if completed:
+                avg_days = sum([
+                    (datetime.fromisoformat(t["updated_at"].replace("Z", "+00:00")) - 
+                     datetime.fromisoformat(t["created_at"].replace("Z", "+00:00"))).days
+                    for t in completed
+                ]) / len(completed)
+                project["avg_completion_time"] = f"{avg_days:.1f} days"
+            else:
+                project["avg_completion_time"] = "N/A"
+        
+        return {
+            "projects": projects,
+            "summary": {
+                "total_projects": len(projects),
+                "avg_completion_rate": sum(p.get("completion_rate", 0) for p in projects) / len(projects) if projects else 0,
+                "total_tasks": sum(p.get("total_tasks", 0) for p in projects),
+                "total_completed": sum(p.get("completed_tasks", 0) for p in projects)
+            }
+        }
+    
+    async def generate_delays_bottlenecks_report(
+        self,
+        org_id: str,
+        project_ids: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Generate delays and bottlenecks report"""
+        db = get_database()
+        
+        query = {"org_id": org_id, "due_date": {"$exists": True, "$ne": None}}
+        if project_ids:
+            query["project_id"] = {"$in": project_ids}
+        
+        now = datetime.now(timezone.utc)
+        tasks = await db.tasks.find(query, {"_id": 0}).to_list(1000)
+        
+        delayed_tasks = []
+        for task in tasks:
+            due_date = datetime.fromisoformat(task["due_date"].replace("Z", "+00:00"))
+            if task.get("status") != "done" and due_date < now:
+                days_delayed = (now - due_date).days
+                task["days_delayed"] = days_delayed
+                delayed_tasks.append(task)
+        
+        # Get project names
+        project_ids_list = list(set(t["project_id"] for t in delayed_tasks))
+        if project_ids_list:
+            projects = await db.projects.find(
+                {"project_id": {"$in": project_ids_list}},
+                {"_id": 0, "project_id": 1, "name": 1}
+            ).to_list(len(project_ids_list))
+            project_map = {p["project_id"]: p["name"] for p in projects}
+            
+            for task in delayed_tasks:
+                task["project_name"] = project_map.get(task["project_id"], "Unknown")
+        
+        # Sort by days delayed
+        delayed_tasks.sort(key=lambda x: x.get("days_delayed", 0), reverse=True)
+        
+        # Identify bottleneck projects (>50% tasks delayed)
+        project_delays = {}
+        for task in tasks:
+            pid = task["project_id"]
+            if pid not in project_delays:
+                project_delays[pid] = {"total": 0, "delayed": 0}
+            project_delays[pid]["total"] += 1
+            due_date = datetime.fromisoformat(task["due_date"].replace("Z", "+00:00"))
+            if task.get("status") != "done" and due_date < now:
+                project_delays[pid]["delayed"] += 1
+        
+        bottleneck_count = sum(1 for p in project_delays.values() if p["total"] > 0 and (p["delayed"] / p["total"]) > 0.5)
+        
+        return {
+            "delayed_tasks": delayed_tasks[:50],  # Top 50
+            "summary": {
+                "total_delayed": len(delayed_tasks),
+                "avg_delay_days": sum(t.get("days_delayed", 0) for t in delayed_tasks) / len(delayed_tasks) if delayed_tasks else 0,
+                "bottleneck_count": bottleneck_count
+            }
+        }
+    
+    async def generate_team_productivity_report(
+        self,
+        org_id: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        project_ids: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """Generate team productivity report"""
+        db = get_database()
+        
+        # Get time entries
+        query = {}
+        if start_date:
+            query["date"] = {"$gte": start_date}
+        if end_date:
+            if "date" in query:
+                query["date"]["$lte"] = end_date
+            else:
+                query["date"] = {"$lte": end_date}
+        if project_ids:
+            tasks = await db.tasks.find(
+                {"project_id": {"$in": project_ids}},
+                {"_id": 0, "task_id": 1}
+            ).to_list(1000)
+            query["task_id"] = {"$in": [t["task_id"] for t in tasks]}
+        
+        entries = await db.time_entries.find(query, {"_id": 0}).to_list(10000)
+        
+        # Get user names
+        user_ids = list(set(e["user_id"] for e in entries))
+        users = await db.users.find(
+            {"user_id": {"$in": user_ids}},
+            {"_id": 0, "user_id": 1, "name": 1}
+        ).to_list(len(user_ids))
+        user_names = {u["user_id"]: u["name"] for u in users}
+        
+        # Get completed tasks count per user
+        task_query = {"status": "done", "org_id": org_id}
+        if start_date or end_date:
+            task_query["updated_at"] = {}
+            if start_date:
+                task_query["updated_at"]["$gte"] = start_date
+            if end_date:
+                task_query["updated_at"]["$lte"] = end_date
+        if project_ids:
+            task_query["project_id"] = {"$in": project_ids}
+        
+        completed_tasks = await db.tasks.find(task_query, {"_id": 0, "assignee_ids": 1}).to_list(10000)
+        
+        user_task_counts = {}
+        for task in completed_tasks:
+            for assignee_id in task.get("assignee_ids", []):
+                user_task_counts[assignee_id] = user_task_counts.get(assignee_id, 0) + 1
+        
+        # Group by user
+        user_productivity = {}
+        for entry in entries:
+            user_id = entry["user_id"]
+            if user_id not in user_productivity:
+                user_productivity[user_id] = {
+                    "user_name": user_names.get(user_id, "Unknown"),
+                    "total_minutes": 0,
+                    "entry_count": 0,
+                    "tasks_completed": user_task_counts.get(user_id, 0)
+                }
+            user_productivity[user_id]["total_minutes"] += entry.get("duration_minutes", 0)
+            user_productivity[user_id]["entry_count"] += 1
+        
+        # Calculate hours and avg
+        for user in user_productivity.values():
+            user["total_hours"] = round(user["total_minutes"] / 60, 2)
+            user["avg_hours_per_task"] = (
+                round(user["total_hours"] / user["tasks_completed"], 2) 
+                if user["tasks_completed"] > 0 else 0
+            )
+        
+        return {
+            "grouped_data": sorted(list(user_productivity.values()), key=lambda x: x["total_hours"], reverse=True),
+            "total_hours": sum(u["total_hours"] for u in user_productivity.values())
+        }
+
             }
         }
 
