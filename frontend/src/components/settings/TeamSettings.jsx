@@ -395,6 +395,7 @@ export function TeamSettings({
                 <SelectItem value="super_admin">Super Admin</SelectItem>
                 <SelectItem value="org_admin">Org Admin</SelectItem>
                 <SelectItem value="project_manager">Project Manager</SelectItem>
+                <SelectItem value="finance">Finance</SelectItem>
                 <SelectItem value="team_member">Team Member</SelectItem>
                 <SelectItem value="viewer">Viewer</SelectItem>
                 {customRoles.length > 0 && (
