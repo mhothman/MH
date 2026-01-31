@@ -70,7 +70,7 @@ def get_database() -> "MonitoredDatabase":
     return _db
 
 
-async def close_connection():
+def close_connection():
     """Gracefully close MongoDB connection."""
     global _client, _db
 
