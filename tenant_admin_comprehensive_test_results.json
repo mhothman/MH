@@ -1,107 +1,203 @@
 {
   "summary": {
-    "total_tests": 16,
-    "passed_tests": 2,
-    "failed_tests": 14,
-    "success_rate": 12.5,
-    "timestamp": "2026-01-31T19:03:01.301359"
+    "total_tests": 32,
+    "passed_tests": 31,
+    "failed_tests": 1,
+    "success_rate": 96.875,
+    "timestamp": "2026-01-31T19:05:13.883913"
   },
   "test_details": [
     {
-      "test": "1.1: Tenant admin login",
-      "success": false,
-      "details": "Expected 200, got 520 - Web server returned an unknown error\n",
-      "timestamp": "2026-01-31T19:03:01.120820"
+      "test": "1.1: Tenant admin login successful",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:12.316704"
     },
     {
-      "test": "1.4: GET /api/tenant-admin/auth/me",
-      "success": false,
-      "details": "Expected 200, got 520 - Web server returned an unknown error\n",
-      "timestamp": "2026-01-31T19:03:01.167595"
+      "test": "1.2: Token type is 'tenant_admin'",
+      "success": true,
+      "details": "Expected 'tenant_admin', got 'tenant_admin'",
+      "timestamp": "2026-01-31T19:05:12.316714"
     },
     {
-      "test": "1.5: Org user login for access control test",
-      "success": false,
-      "details": "Could not login as org user",
-      "timestamp": "2026-01-31T19:03:01.222714"
+      "test": "1.3: Role is 'tenant_super_admin'",
+      "success": true,
+      "details": "Expected 'tenant_super_admin', got 'tenant_super_admin'",
+      "timestamp": "2026-01-31T19:05:12.316721"
     },
     {
-      "test": "2.1: GET /api/tenant-admin/organizations",
-      "success": false,
-      "details": "Expected 200, got 520 - Web server returned an unknown error\n",
-      "timestamp": "2026-01-31T19:03:01.257561"
+      "test": "1.4: GET /api/tenant-admin/auth/me returns profile",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:12.360165"
     },
     {
-      "test": "2.4: Get organization detail",
-      "success": false,
-      "details": "No test org ID available",
-      "timestamp": "2026-01-31T19:03:01.257576"
+      "test": "1.5: Org user CANNOT access tenant endpoints (403)",
+      "success": true,
+      "details": "Org user should not have access to tenant admin endpoints",
+      "timestamp": "2026-01-31T19:05:12.660052"
     },
     {
-      "test": "2.5: Suspend organization",
-      "success": false,
-      "details": "No test org ID available",
-      "timestamp": "2026-01-31T19:03:01.257581"
+      "test": "2.1: GET /api/tenant-admin/organizations returns list",
+      "success": true,
+      "details": "Found 21 organizations",
+      "timestamp": "2026-01-31T19:05:12.723090"
     },
     {
-      "test": "2.8: Activate organization",
-      "success": false,
-      "details": "No test org ID available",
-      "timestamp": "2026-01-31T19:03:01.257585"
+      "test": "2.2: Organizations include stats (members, projects, tasks)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:12.723102"
     },
     {
-      "test": "2.10: Delete organization - setup",
-      "success": false,
-      "details": "No organizations available for deletion test",
-      "timestamp": "2026-01-31T19:03:01.301279"
+      "test": "2.3: Organizations include owner info (name, email)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:12.723109"
     },
     {
-      "test": "3.1: Get organization users",
-      "success": false,
-      "details": "No test org ID available",
-      "timestamp": "2026-01-31T19:03:01.301300"
+      "test": "2.4: GET /api/tenant-admin/organizations/{org_id} returns detail",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:12.768554"
     },
     {
-      "test": "3.3: Suspend user",
-      "success": false,
-      "details": "No test user ID available",
-      "timestamp": "2026-01-31T19:03:01.301304"
+      "test": "2.5: POST /api/tenant-admin/organizations/{org_id}/suspend",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:12.812481"
     },
     {
-      "test": "3.5: Activate user",
-      "success": false,
-      "details": "No test user ID available",
-      "timestamp": "2026-01-31T19:03:01.301308"
+      "test": "2.6: Organization status changed to 'suspended'",
+      "success": true,
+      "details": "Status is 'suspended'",
+      "timestamp": "2026-01-31T19:05:12.858245"
     },
     {
-      "test": "3.7: Delete user",
+      "test": "2.7: Suspended org blocks regular user API access (403)",
       "success": false,
-      "details": "No test user ID available",
-      "timestamp": "2026-01-31T19:03:01.301312"
+      "details": "",
+      "timestamp": "2026-01-31T19:05:12.908469"
+    },
+    {
+      "test": "2.8: POST /api/tenant-admin/organizations/{org_id}/activate",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:12.948943"
+    },
+    {
+      "test": "2.9: Organization status changed to 'active'",
+      "success": true,
+      "details": "Status is 'active'",
+      "timestamp": "2026-01-31T19:05:12.999610"
+    },
+    {
+      "test": "2.10: DELETE /api/tenant-admin/organizations/{org_id}",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.120441"
+    },
+    {
+      "test": "2.11: Deleted organization returns 404",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.159207"
+    },
+    {
+      "test": "2.12: Deleted org no longer appears in list",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.222494"
+    },
+    {
+      "test": "3.1: GET /api/tenant-admin/organizations/{org_id}/users",
+      "success": true,
+      "details": "Found 1 users",
+      "timestamp": "2026-01-31T19:05:13.264501"
+    },
+    {
+      "test": "3.2: Users returned with roles and statuses",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.264518"
+    },
+    {
+      "test": "3.3: POST /api/tenant-admin/users/{user_id}/suspend",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.303609"
+    },
+    {
+      "test": "3.4: User status changed to 'suspended'",
+      "success": true,
+      "details": "Status is 'suspended'",
+      "timestamp": "2026-01-31T19:05:13.343359"
+    },
+    {
+      "test": "3.5: POST /api/tenant-admin/users/{user_id}/activate",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.384726"
+    },
+    {
+      "test": "3.6: User status changed to 'active'",
+      "success": true,
+      "details": "Status is 'active'",
+      "timestamp": "2026-01-31T19:05:13.421761"
+    },
+    {
+      "test": "3.7: DELETE /api/tenant-admin/users/{user_id}",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.505060"
+    },
+    {
+      "test": "3.8: Deleted user removed from system",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.585004"
+    },
+    {
+      "test": "3.9: User no longer in org user list",
+      "success": true,
+      "details": "Before: 1, After: 0",
+      "timestamp": "2026-01-31T19:05:13.585019"
     },
     {
       "test": "4.1: Tenant admin endpoints require tenant token (tested in 1.5)",
       "success": true,
       "details": "",
-      "timestamp": "2026-01-31T19:03:01.301321"
+      "timestamp": "2026-01-31T19:05:13.585034"
     },
     {
-      "test": "4.2: Tenant admin access to org data",
-      "success": false,
-      "details": "No test org available",
-      "timestamp": "2026-01-31T19:03:01.301324"
+      "test": "4.2: Tenant admin CAN view org data through tenant endpoints",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.620186"
     },
     {
       "test": "4.3: Audit logs created for all actions",
       "success": true,
       "details": "Suspend, activate, delete actions create audit logs (verified in code)",
-      "timestamp": "2026-01-31T19:03:01.301327"
+      "timestamp": "2026-01-31T19:05:13.620201"
     },
     {
-      "test": "5.1: Edge cases",
-      "success": false,
-      "details": "No test org ID available",
-      "timestamp": "2026-01-31T19:03:01.301337"
+      "test": "5.1: Cannot suspend already suspended org (returns error)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.717518"
+    },
+    {
+      "test": "5.2: Cannot activate already active org (returns error)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.845510"
+    },
+    {
+      "test": "5.3: Cannot delete non-existent org (returns 404/400)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T19:05:13.883873"
     }
   ],
   "credentials_used": {
