@@ -292,6 +292,13 @@ class TenantService:
         tasks_count = await db.tasks.count_documents({"org_id": org_id})
         members_count = await db.org_memberships.count_documents({"org_id": org_id})
         
+        # Get all user IDs from this org before deleting memberships
+        memberships_to_delete = await db.org_memberships.find(
+            {"org_id": org_id}, 
+            {"_id": 0, "user_id": 1}
+        ).to_list(1000)
+        user_ids_in_org = [m["user_id"] for m in memberships_to_delete]
+        
         # Delete all related data
         await db.projects.delete_many({"org_id": org_id})
         await db.tasks.delete_many({"org_id": org_id})
@@ -305,19 +312,15 @@ class TenantService:
         await db.automations.delete_many({"org_id": org_id})
         await db.workflows.delete_many({"org_id": org_id})
         
-        # Optional: Delete orphaned users (users with no org memberships after deletion)
-        # Get all user IDs from deleted memberships
-        deleted_users = []
-        for user_id_item in [m["user_id"] for m in await db.org_memberships.find({"org_id": org_id}, {"_id": 0, "user_id": 1}).to_list(1000)]:
-            # Check if user has other org memberships
-            other_memberships = await db.org_memberships.count_documents({
-                "user_id": user_id_item,
-                "org_id": {"$ne": org_id}
-            })
+        # Delete orphaned users (users who belonged ONLY to this org)
+        deleted_users_count = 0
+        for user_id in user_ids_in_org:
+            # Check if user has memberships in other orgs
+            other_memberships = await db.org_memberships.count_documents({"user_id": user_id})
             if other_memberships == 0:
                 # User has no other orgs, delete the user
-                await db.users.delete_one({"user_id": user_id_item})
-                deleted_users.append(user_id_item)
+                await db.users.delete_one({"user_id": user_id})
+                deleted_users_count += 1
         
         # Delete organization
         await db.organizations.delete_one({"org_id": org_id})
@@ -339,8 +342,8 @@ class TenantService:
             }
         )
         
-        logger.warning(f"Organization {org_id} ({org['name']}) DELETED by tenant admin {deleted_by} - {projects_count} projects, {tasks_count} tasks removed")
-        return True, f"Organization and all data deleted successfully. {projects_count} projects and {tasks_count} tasks removed."
+        logger.warning(f"Organization {org_id} ({org['name']}) DELETED by tenant admin {deleted_by} - {projects_count} projects, {tasks_count} tasks, {deleted_users_count} orphaned users removed")
+        return True, f"Organization and all data deleted successfully. {projects_count} projects, {tasks_count} tasks, and {deleted_users_count} orphaned users removed."
     
     async def delete_user(
         self,
