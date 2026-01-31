@@ -332,15 +332,6 @@ class TenantService:
         
         logger.warning(f"User {user_id} ({user['email']}) DELETED by tenant admin {deleted_by}")
         return True, "User deleted successfully"
-
-                "actor_type": "tenant_admin"
-            }
-        )
-        
-        # TODO: Force logout all organization users (invalidate sessions)
-        
-        logger.info(f"Organization {org_id} suspended by {suspended_by}")
-        return True, "Organization suspended successfully"
     
     async def activate_organization(
         self,
