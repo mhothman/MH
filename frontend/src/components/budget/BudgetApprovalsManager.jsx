@@ -101,12 +101,13 @@ export const BudgetApprovalsManager = ({ orgId }) => {
   };
 
   const formatValue = (value, changeType, currency = "EGP") => {
+    const safeValue = value ?? 0;
     if (changeType === "threshold_change") {
-      return `${value}%`;
+      return `${safeValue}%`;
     } else if (changeType === "hard_limit_change") {
-      return value === 1 ? "Enabled" : "Disabled";
+      return safeValue === 1 ? "Enabled" : "Disabled";
     } else {
-      return `${currency} ${value.toLocaleString()}`;
+      return `${currency} ${safeValue.toLocaleString()}`;
     }
   };
 
