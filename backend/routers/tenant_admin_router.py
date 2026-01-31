@@ -172,6 +172,27 @@ async def get_organization_detail(org_id: str, request: Request):
         created_at=org.get("created_at") if isinstance(org.get("created_at"), datetime) else datetime.fromisoformat(org["created_at"]) if org.get("created_at") else datetime.now(timezone.utc),
         suspended_at=org.get("suspended_at"),
         suspended_by=org.get("suspended_by"),
+
+
+
+@router.delete("/organizations/{org_id}")
+async def delete_organization(org_id: str, request: Request):
+    """Permanently delete an organization and all its data"""
+    tenant_admin = await require_tenant_admin(request)
+    
+    ip_address = request.client.host if request.client else None
+    
+    success, message = await tenant_service.delete_organization(
+        org_id=org_id,
+        deleted_by=tenant_admin["user_id"],
+        ip_address=ip_address
+    )
+    
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+    
+    return {"message": message}
+
         suspension_reason=org.get("suspension_reason")
     )
 
@@ -207,6 +228,27 @@ async def activate_organization(org_id: str, request: Request):
     user = await require_tenant_admin(request)
     
     ip_address = request.client.host if request.client else None
+
+
+
+@router.delete("/users/{user_id}")
+async def delete_user(user_id: str, request: Request):
+    """Permanently delete a user"""
+    tenant_admin = await require_tenant_admin(request)
+    
+    ip_address = request.client.host if request.client else None
+    
+    success, message = await tenant_service.delete_user(
+        user_id=user_id,
+        deleted_by=tenant_admin["user_id"],
+        ip_address=ip_address
+    )
+    
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+    
+    return {"message": message}
+
     
     success, message = await tenant_service.activate_organization(
         org_id=org_id,
