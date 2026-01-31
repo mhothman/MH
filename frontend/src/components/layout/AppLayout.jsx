@@ -36,6 +36,7 @@ import {
   CheckCheck,
   ExternalLink,
   FileText,
+  DollarSign,
 } from "lucide-react";
 import { toast } from "sonner";
 
