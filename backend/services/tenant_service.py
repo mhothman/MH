@@ -305,6 +305,20 @@ class TenantService:
         await db.automations.delete_many({"org_id": org_id})
         await db.workflows.delete_many({"org_id": org_id})
         
+        # Optional: Delete orphaned users (users with no org memberships after deletion)
+        # Get all user IDs from deleted memberships
+        deleted_users = []
+        for user_id_item in [m["user_id"] for m in await db.org_memberships.find({"org_id": org_id}, {"_id": 0, "user_id": 1}).to_list(1000)]:
+            # Check if user has other org memberships
+            other_memberships = await db.org_memberships.count_documents({
+                "user_id": user_id_item,
+                "org_id": {"$ne": org_id}
+            })
+            if other_memberships == 0:
+                # User has no other orgs, delete the user
+                await db.users.delete_one({"user_id": user_id_item})
+                deleted_users.append(user_id_item)
+        
         # Delete organization
         await db.organizations.delete_one({"org_id": org_id})
         
