@@ -293,6 +293,25 @@ async def activate_user(user_id: str, request: Request):
     return {"message": message}
 
 
+@router.delete("/users/{user_id}")
+async def delete_user(user_id: str, request: Request):
+    """Permanently delete a user"""
+    tenant_admin = await require_tenant_admin(request)
+    
+    ip_address = request.client.host if request.client else None
+    
+    success, message = await tenant_service.delete_user(
+        user_id=user_id,
+        deleted_by=tenant_admin["user_id"],
+        ip_address=ip_address
+    )
+    
+    if not success:
+        raise HTTPException(status_code=400, detail=message)
+    
+    return {"message": message}
+
+
 # ==================== Initialization ====================
 
 @router.post("/seed")
