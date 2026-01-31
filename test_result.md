@@ -167,7 +167,7 @@ frontend:
     implemented: true
     working: "NA"
     file: "/app/frontend/src/components/budget/ProjectBudgetTab.jsx"
-    stuck_count: 3
+    stuck_count: 4
     priority: "high"
     needs_retesting: false
     status_history:
@@ -183,6 +183,9 @@ frontend:
       - working: "NA"
         agent: "testing"
         comment: "FINAL COMPREHENSIVE TEST COMPLETED - CONFIRMED TEST SCENARIO IS INVALID. Executed complete test flow as specified in review request. FINDINGS: ✅ CODE FIXES VERIFIED CORRECT: (1) Line 680 button logic: {!canApprove && budget} - correctly implemented, (2) Line 1149 orgId: project.org_id - correctly implemented, (3) Finance user login (ahmed@ahmed.com) - working correctly. ❌ TEST CANNOT PROCEED: test@proflow.com is NOT a regular user as claimed in review request. EVIDENCE: (1) 'Request Change' button NOT visible on Budget tab (screenshot: budget_tab_buttons.png), (2) 'Settings' button IS visible, confirming user has budget:edit permission, (3) Button visibility logic working correctly - button hidden because user HAS budget:approve permission (canApprove=true, so !canApprove=false), (4) Budget Approvals page shows 'No pending approval requests' because no request could be submitted (screenshot: budget_approvals_page.png). VERIFIED: ahmed@ahmed.com login successful, Budget Approvals page loads correctly with proper title and UI. CONCLUSION: The workflow implementation is CORRECT. The test scenario provided in review request uses WRONG USER CREDENTIALS. test@proflow.com has super_admin/Finance role with budget:approve permission, making them unable to submit approval requests (they can directly edit budgets via Settings button). CANNOT VERIFY END-TO-END WORKFLOW without proper test user credentials. RECOMMENDATION: Provide credentials for a user WITHOUT budget:approve permission to test the complete approval workflow."
+      - working: "NA"
+        agent: "testing"
+        comment: "NEW TEST ATTEMPT WITH UPDATED CREDENTIALS - INVALID PASSWORD PROVIDED. Review request specifies: Regular User: mahmoudothman@msn.com / test123456, Finance User: ahmed@ahmed.com / Su@12345. TEST RESULTS: ✅ Finance user (ahmed@ahmed.com / Su@12345) - LOGIN SUCCESSFUL. User has 'finance' role with budget:approve permission. ❌ Regular user (mahmoudothman@msn.com / test123456) - LOGIN FAILED with 401 Invalid credentials. VERIFICATION: User mahmoudothman@msn.com EXISTS in org_3a0711d3f937 with team_member role (confirmed via org members API), but password 'test123456' is INCORRECT. SAME ISSUE AS PREVIOUS TESTS: Review request provides INVALID TEST CREDENTIALS. Cannot complete end-to-end testing without valid password for a regular user (team_member role without budget:approve permission). AVAILABLE USERS IN ORG: test@proflow.com, mahmoud@eduflow.work, mahmoud.hasan@su.edu.eg, mahmoudothman@msn.com, ahmed@ahmed.com - all have team_member role except ahmed who has finance role. CRITICAL BLOCKER: Need valid password for any team_member user to test budget approval request submission flow. CODE IMPLEMENTATION APPEARS CORRECT based on previous verification: (1) Request Change button visibility logic correct (line 680: !canApprove && budget), (2) orgId prop correctly passed (line 1149: project.org_id), (3) Budget Approvals page exists and loads for Finance users, (4) BudgetApprovalDialog component implemented, (5) Backend API endpoints exist. CANNOT VERIFY END-TO-END WORKFLOW without valid test credentials."
   
   - task: "Finance Role Visibility in Team Settings"
     implemented: true
