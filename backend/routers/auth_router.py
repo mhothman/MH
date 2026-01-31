@@ -144,6 +144,16 @@ async def login(data: UserLogin, response: Response):
     if user.get("suspended") or user.get("status") == "suspended":
         raise HTTPException(status_code=403, detail="Account suspended. Contact your administrator.")
     
+    # Check if user has any valid organization memberships
+    membership = await db.org_memberships.find_one({"user_id": user["user_id"]}, {"_id": 0, "org_id": 1})
+    if not membership:
+        raise HTTPException(status_code=403, detail="No organization access. Your organization may have been removed.")
+    
+    # Check if organization is suspended
+    org = await db.organizations.find_one({"org_id": membership["org_id"]}, {"_id": 0, "status": 1})
+    if org and org.get("status") == "suspended":
+        raise HTTPException(status_code=403, detail="Organization is suspended. Contact tenant administrator.")
+    
     # Create session
     session_token = f"sess_{uuid.uuid4().hex}"
     session = {
