@@ -131,14 +131,18 @@ class SeasonalEmployeeService:
             # Quick stats (without detailed cost calc for list view)
             assignments = await db.seasonal_employee_projects.find(
                 {"seasonal_employee_id": emp["employee_id"]},
-                {"_id": 0, "assignment_id": 1}
+                {"_id": 0, "assignment_id": 1, "day_rate": 1}
             ).to_list(100)
             
-            total_days = sum([
-                await db.seasonal_attendance.count_documents({"assignment_id": a["assignment_id"]})
-                for a in assignments
-            ])
+            total_days = 0
+            total_cost = 0
+            for assignment in assignments:
+                days = await db.seasonal_attendance.count_documents({"assignment_id": assignment["assignment_id"]})
+                total_days += days
+                total_cost += days * assignment.get("day_rate", 0)
+            
             emp["total_days_worked"] = total_days
+            emp["total_cost"] = round(total_cost, 2)
         
         return employees
     
