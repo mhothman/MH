@@ -368,12 +368,12 @@ class TenantAdminTester:
             return False
         
         # First, login as a regular org user to get their token
-        # We'll use test@proflow.com which should be in the org
+        # We'll use testuser@proflow.com which should be in the org
         success, data, status = self.make_request(
             'POST',
             'auth/login',
             data={
-                "email": "test@proflow.com",
+                "email": "testuser@proflow.com",
                 "password": "Test123!"
             }
         )
