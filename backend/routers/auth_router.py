@@ -140,8 +140,9 @@ async def login(data: UserLogin, response: Response):
     if not user or not verify_password(data.password, user.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    if user.get("suspended"):
-        raise HTTPException(status_code=403, detail="Account suspended")
+    # Check if user is suspended (check both 'suspended' boolean and 'status' field)
+    if user.get("suspended") or user.get("status") == "suspended":
+        raise HTTPException(status_code=403, detail="Account suspended. Contact your administrator.")
     
     # Create session
     session_token = f"sess_{uuid.uuid4().hex}"
