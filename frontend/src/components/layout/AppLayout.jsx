@@ -38,6 +38,8 @@ import {
   ExternalLink,
   FileText,
   DollarSign,
+  Activity,
+  FileBarChart,
 } from "lucide-react";
 import { toast } from "sonner";
 
