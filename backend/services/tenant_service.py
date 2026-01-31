@@ -122,13 +122,55 @@ class TenantService:
         """Get all organizations for a tenant"""
         db = get_database()
         
+        # Get orgs with tenant_id OR without tenant_id (for backward compatibility)
         orgs = await db.organizations.find(
-            {"tenant_id": tenant_id},
+            {"$or": [{"tenant_id": tenant_id}, {"tenant_id": {"$exists": False}}]},
             {"_id": 0}
         ).to_list(1000)
         
+        # Update orgs without tenant_id
+        for org in orgs:
+            if not org.get("tenant_id"):
+                await db.organizations.update_one(
+                    {"org_id": org["org_id"]},
+                    {"$set": {"tenant_id": tenant_id, "status": org.get("status", "active")}}
+                )
+                org["tenant_id"] = tenant_id
+        
+        # Get owner info for all orgs
+        owner_ids = [org.get("owner_id") for org in orgs if org.get("owner_id")]
+        owner_map = {}
+        if owner_ids:
+            owners = await db.users.find(
+                {"user_id": {"$in": owner_ids}},
+                {"_id": 0, "user_id": 1, "name": 1, "email": 1}
+            ).to_list(len(owner_ids))
+            owner_map = {o["user_id"]: {"name": o["name"], "email": o["email"]} for o in owners}
+        
         # Get stats for each org
         for org in orgs:
+            # Get owner info
+            owner_info = owner_map.get(org.get("owner_id"))
+            if owner_info:
+                org["owner_name"] = owner_info["name"]
+                org["owner_email"] = owner_info["email"]
+            else:
+                # Fallback: get first admin
+                admin = await db.org_memberships.find_one(
+                    {"org_id": org["org_id"], "role": {"$in": ["super_admin", "org_admin"]}},
+                    {"_id": 0, "user_id": 1}
+                )
+                if admin:
+                    admin_user = await db.users.find_one(
+                        {"user_id": admin["user_id"]},
+                        {"_id": 0, "name": 1, "email": 1}
+                    )
+                    org["owner_name"] = admin_user["name"] if admin_user else "Unknown"
+                    org["owner_email"] = admin_user["email"] if admin_user else "Unknown"
+                else:
+                    org["owner_name"] = "Unknown"
+                    org["owner_email"] = "Unknown"
+            
             # Count members
             members_count = await db.org_memberships.count_documents({"org_id": org["org_id"]})
             org["total_members"] = members_count
