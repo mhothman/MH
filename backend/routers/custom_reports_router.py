@@ -253,18 +253,6 @@ def _export_delays_to_csv(report_data: dict) -> StreamingResponse:
     )
 
     
-    report_data = await report_service.generate_project_progress_report(
-        org_id=org_id,
-        project_ids=project_list,
-        status_filter=status
-    )
-    
-    if export_format == "csv":
-        return _export_projects_to_csv(report_data)
-    
-    return report_data
-
-
 def _export_to_csv(report_data: dict, filename: str) -> StreamingResponse:
     """Export time tracking report to CSV"""
     output = io.StringIO()
