@@ -91,12 +91,17 @@ export default function SeasonalEmployeeDetailPage() {
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
       
-      if (!response.ok) throw new Error('Failed to load assignments');
+      if (!response.ok) {
+        console.error('Failed to load assignments:', response.status);
+        return;
+      }
       
       const data = await response.json();
+      console.log('Assignments loaded:', data);
       setAssignments(data);
     } catch (error) {
       console.error('Failed to load assignments:', error);
+      setAssignments([]);
     }
   };
 
