@@ -477,8 +477,15 @@ export default function SeasonalEmployeeDetailPage() {
                 type="date"
                 value={attendanceForm.work_date}
                 onChange={(e) => setAttendanceForm({ ...attendanceForm, work_date: e.target.value })}
+                min={selectedAssignment?.start_date}
+                max={selectedAssignment?.end_date}
                 required
               />
+              {selectedAssignment && (
+                <p className="text-xs text-muted-foreground">
+                  Period: {selectedAssignment.start_date} to {selectedAssignment.end_date}
+                </p>
+              )}
             </div>
             
             <div className="grid grid-cols-2 gap-4">
