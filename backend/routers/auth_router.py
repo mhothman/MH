@@ -88,6 +88,11 @@ async def register(data: UserCreate):
     else:
         # Create default organization for user
         org_id = f"org_{uuid.uuid4().hex[:12]}"
+        
+        # Get default tenant (or create one)
+        default_tenant = await db.tenants.find_one({}, {"_id": 0, "tenant_id": 1})
+        tenant_id = default_tenant["tenant_id"] if default_tenant else "tenant_default"
+        
         org = {
             "org_id": org_id,
             "name": data.organization_name,
@@ -95,16 +100,18 @@ async def register(data: UserCreate):
             "timezone": "UTC",
             "working_days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
             "owner_id": user_id,
+            "tenant_id": tenant_id,  # Assign to tenant
+            "status": "active",
             "created_at": datetime.now(timezone.utc).isoformat()
         }
         await db.organizations.insert_one(org)
         
-        # Add user as org admin
+        # Add user as SUPER ADMIN with full privileges
         membership = {
             "membership_id": f"mem_{uuid.uuid4().hex[:12]}",
             "user_id": user_id,
             "org_id": org_id,
-            "role": UserRole.ORG_ADMIN,
+            "role": UserRole.SUPER_ADMIN,  # Changed from ORG_ADMIN to SUPER_ADMIN
             "joined_at": datetime.now(timezone.utc).isoformat()
         }
         await db.org_memberships.insert_one(membership)
