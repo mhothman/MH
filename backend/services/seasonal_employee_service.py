@@ -417,6 +417,16 @@ class SeasonalEmployeeService:
         if not assignment:
             raise ValueError("Assignment not found")
         
+        # Validate work_date is within assignment period
+        work_date_dt = datetime.strptime(work_date, '%Y-%m-%d').date()
+        start_date_dt = datetime.strptime(assignment["start_date"], '%Y-%m-%d').date()
+        end_date_dt = datetime.strptime(assignment["end_date"], '%Y-%m-%d').date()
+        
+        if work_date_dt < start_date_dt or work_date_dt > end_date_dt:
+            raise ValueError(
+                f"Work date must be within project period ({assignment['start_date']} to {assignment['end_date']})"
+            )
+        
         # Validate time_in < time_out
         time_in_dt = datetime.strptime(time_in, '%H:%M').time()
         time_out_dt = datetime.strptime(time_out, '%H:%M').time()
