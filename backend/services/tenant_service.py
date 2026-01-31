@@ -1,0 +1,460 @@
+"""Tenant Administration Service - Manage tenants, organizations, and users"""
+import logging
+from datetime import datetime, timezone
+from typing import List, Dict, Optional, Tuple
+from uuid import uuid4
+import bcrypt
+
+from core.database import get_database
+from services.audit_service import audit_service
+
+logger = logging.getLogger(__name__)
+
+
+class TenantService:
+    """Service for tenant-level administration"""
+    
+    # ==================== Tenant Management ====================
+    
+    async def create_tenant(self, name: str, domain: Optional[str] = None) -> Dict:
+        """Create a new tenant"""
+        db = get_database()
+        
+        tenant_id = f"tenant_{uuid4().hex[:12]}"
+        now = datetime.now(timezone.utc).isoformat()
+        
+        tenant = {
+            "tenant_id": tenant_id,
+            "name": name,
+            "domain": domain,
+            "status": "active",
+            "created_at": now
+        }
+        
+        await db.tenants.insert_one(tenant)
+        tenant.pop("_id", None)
+        
+        logger.info(f"Tenant created: {tenant_id}")
+        return tenant
+    
+    async def get_tenant(self, tenant_id: str) -> Optional[Dict]:
+        """Get tenant by ID"""
+        db = get_database()
+        return await db.tenants.find_one({"tenant_id": tenant_id}, {"_id": 0})
+    
+    async def get_all_tenants(self) -> List[Dict]:
+        """Get all tenants"""
+        db = get_database()
+        return await db.tenants.find({}, {"_id": 0}).to_list(100)
+    
+    # ==================== Tenant User Management ====================
+    
+    async def create_tenant_user(
+        self,
+        tenant_id: str,
+        email: str,
+        password: str,
+        name: str,
+        role: str = "tenant_admin"
+    ) -> Dict:
+        """Create a tenant admin user"""
+        db = get_database()
+        
+        # Check if email exists
+        existing = await db.tenant_users.find_one({"email": email.lower()}, {"_id": 0})
+        if existing:
+            raise ValueError("Email already exists")
+        
+        user_id = f"tadmin_{uuid4().hex[:12]}"
+        now = datetime.now(timezone.utc).isoformat()
+        
+        # Hash password
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        user = {
+            "user_id": user_id,
+            "tenant_id": tenant_id,
+            "email": email.lower(),
+            "password_hash": password_hash,
+            "name": name,
+            "role": role,
+            "status": "active",
+            "last_login": None,
+            "created_at": now
+        }
+        
+        await db.tenant_users.insert_one(user)
+        user.pop("_id", None)
+        user.pop("password_hash", None)  # Never return password hash
+        
+        logger.info(f"Tenant user created: {user_id} ({email})")
+        return user
+    
+    async def authenticate_tenant_user(self, email: str, password: str) -> Tuple[bool, Optional[Dict], str]:
+        """Authenticate a tenant admin user"""
+        db = get_database()
+        
+        user = await db.tenant_users.find_one({"email": email.lower()}, {"_id": 0})
+        if not user:
+            return False, None, "Invalid credentials"
+        
+        # Check status
+        if user.get("status") != "active":
+            return False, None, "Account is suspended"
+        
+        # Verify password
+        if not bcrypt.checkpw(password.encode('utf-8'), user["password_hash"].encode('utf-8')):
+            return False, None, "Invalid credentials"
+        
+        # Update last login
+        await db.tenant_users.update_one(
+            {"user_id": user["user_id"]},
+            {"$set": {"last_login": datetime.now(timezone.utc).isoformat()}}
+        )
+        
+        user.pop("password_hash", None)
+        logger.info(f"Tenant user authenticated: {user['email']}")
+        return True, user, "Login successful"
+    
+    # ==================== Organization Management ====================
+    
+    async def get_all_organizations(self, tenant_id: str) -> List[Dict]:
+        """Get all organizations for a tenant"""
+        db = get_database()
+        
+        orgs = await db.organizations.find(
+            {"tenant_id": tenant_id},
+            {"_id": 0}
+        ).to_list(1000)
+        
+        # Get stats for each org
+        for org in orgs:
+            # Count members
+            members_count = await db.org_memberships.count_documents({"org_id": org["org_id"]})
+            org["total_members"] = members_count
+            
+            # Count projects
+            projects_count = await db.projects.count_documents({"org_id": org["org_id"]})
+            org["total_projects"] = projects_count
+            
+            # Count tasks
+            tasks_count = await db.tasks.count_documents({"org_id": org["org_id"]})
+            org["total_tasks"] = tasks_count
+        
+        return orgs
+    
+    async def get_organization_detail(self, org_id: str) -> Optional[Dict]:
+        """Get detailed organization info for tenant admin"""
+        db = get_database()
+        
+        org = await db.organizations.find_one({"org_id": org_id}, {"_id": 0})
+        if not org:
+            return None
+        
+        # Get owner info
+        owner = await db.users.find_one(
+            {"user_id": org["owner_id"]},
+            {"_id": 0, "name": 1, "email": 1}
+        )
+        
+        org["owner_name"] = owner["name"] if owner else "Unknown"
+        org["owner_email"] = owner["email"] if owner else "Unknown"
+        
+        # Get counts
+        org["total_members"] = await db.org_memberships.count_documents({"org_id": org_id})
+        org["total_projects"] = await db.projects.count_documents({"org_id": org_id})
+        org["total_tasks"] = await db.tasks.count_documents({"org_id": org_id})
+        
+        return org
+    
+    async def suspend_organization(
+        self,
+        org_id: str,
+        suspended_by: str,
+        reason: Optional[str] = None,
+        ip_address: Optional[str] = None
+    ) -> Tuple[bool, str]:
+        """Suspend an organization"""
+        db = get_database()
+        
+        org = await db.organizations.find_one({"org_id": org_id}, {"_id": 0})
+        if not org:
+            return False, "Organization not found"
+        
+        if org.get("status") == "suspended":
+            return False, "Organization is already suspended"
+        
+        now = datetime.now(timezone.utc).isoformat()
+        
+        # Update organization status
+        await db.organizations.update_one(
+            {"org_id": org_id},
+            {"$set": {
+                "status": "suspended",
+                "suspended_at": now,
+                "suspended_by": suspended_by,
+                "suspension_reason": reason
+            }}
+        )
+        
+        # Audit log
+        await audit_service.log(
+            org_id=org_id,
+            user_id=suspended_by,
+            action="organization.suspend",
+            resource_type="organization",
+            resource_id=org_id,
+            details={
+                "reason": reason,
+                "ip_address": ip_address,
+                "actor_type": "tenant_admin"
+            }
+        )
+        
+        # TODO: Force logout all organization users (invalidate sessions)
+        
+        logger.info(f"Organization {org_id} suspended by {suspended_by}")
+        return True, "Organization suspended successfully"
+    
+    async def activate_organization(
+        self,
+        org_id: str,
+        activated_by: str,
+        ip_address: Optional[str] = None
+    ) -> Tuple[bool, str]:
+        """Activate a suspended organization"""
+        db = get_database()
+        
+        org = await db.organizations.find_one({"org_id": org_id}, {"_id": 0})
+        if not org:
+            return False, "Organization not found"
+        
+        if org.get("status") != "suspended":
+            return False, "Organization is not suspended"
+        
+        # Update organization status
+        await db.organizations.update_one(
+            {"org_id": org_id},
+            {"$set": {
+                "status": "active",
+                "suspended_at": None,
+                "suspended_by": None,
+                "suspension_reason": None,
+                "activated_at": datetime.now(timezone.utc).isoformat(),
+                "activated_by": activated_by
+            }}
+        )
+        
+        # Audit log
+        await audit_service.log(
+            org_id=org_id,
+            user_id=activated_by,
+            action="organization.activate",
+            resource_type="organization",
+            resource_id=org_id,
+            details={
+                "ip_address": ip_address,
+                "actor_type": "tenant_admin"
+            }
+        )
+        
+        logger.info(f"Organization {org_id} activated by {activated_by}")
+        return True, "Organization activated successfully"
+    
+    # ==================== User Management ====================
+    
+    async def get_organization_users(self, org_id: str) -> List[Dict]:
+        """Get all users in an organization for tenant admin view"""
+        db = get_database()
+        
+        # Get memberships
+        memberships = await db.org_memberships.find(
+            {"org_id": org_id},
+            {"_id": 0}
+        ).to_list(1000)
+        
+        user_ids = [m["user_id"] for m in memberships]
+        if not user_ids:
+            return []
+        
+        # Get user details
+        users = await db.users.find(
+            {"user_id": {"$in": user_ids}},
+            {"_id": 0}
+        ).to_list(len(user_ids))
+        
+        # Get org info
+        org = await db.organizations.find_one({"org_id": org_id}, {"_id": 0, "name": 1})
+        org_name = org["name"] if org else "Unknown"
+        
+        # Merge data
+        membership_map = {m["user_id"]: m for m in memberships}
+        
+        result = []
+        for user in users:
+            membership = membership_map.get(user["user_id"], {})
+            result.append({
+                "user_id": user["user_id"],
+                "email": user["email"],
+                "name": user["name"],
+                "org_id": org_id,
+                "org_name": org_name,
+                "role": membership.get("role", "unknown"),
+                "status": user.get("status", "active"),
+                "last_login": user.get("last_login"),
+                "created_at": user.get("created_at"),
+                "suspended_at": user.get("suspended_at"),
+                "suspended_by": user.get("suspended_by")
+            })
+        
+        return result
+    
+    async def suspend_user(
+        self,
+        user_id: str,
+        suspended_by: str,
+        reason: Optional[str] = None,
+        ip_address: Optional[str] = None
+    ) -> Tuple[bool, str]:
+        """Suspend a user (tenant admin action)"""
+        db = get_database()
+        
+        user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+        if not user:
+            return False, "User not found"
+        
+        if user.get("status") == "suspended":
+            return False, "User is already suspended"
+        
+        now = datetime.now(timezone.utc).isoformat()
+        
+        # Update user status
+        await db.users.update_one(
+            {"user_id": user_id},
+            {"$set": {
+                "status": "suspended",
+                "suspended": True,  # Backward compatibility
+                "suspended_at": now,
+                "suspended_by": suspended_by,
+                "suspension_reason": reason
+            }}
+        )
+        
+        # Get org for audit
+        membership = await db.org_memberships.find_one({"user_id": user_id}, {"_id": 0, "org_id": 1})
+        org_id = membership["org_id"] if membership else None
+        
+        # Audit log
+        if org_id:
+            await audit_service.log(
+                org_id=org_id,
+                user_id=suspended_by,
+                action="user.suspend",
+                resource_type="user",
+                resource_id=user_id,
+                details={
+                    "reason": reason,
+                    "ip_address": ip_address,
+                    "actor_type": "tenant_admin",
+                    "target_user": user["email"]
+                }
+            )
+        
+        # TODO: Invalidate user sessions / force logout
+        
+        logger.info(f"User {user_id} ({user['email']}) suspended by tenant admin {suspended_by}")
+        return True, "User suspended successfully"
+    
+    async def activate_user(
+        self,
+        user_id: str,
+        activated_by: str,
+        ip_address: Optional[str] = None
+    ) -> Tuple[bool, str]:
+        """Activate a suspended user"""
+        db = get_database()
+        
+        user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+        if not user:
+            return False, "User not found"
+        
+        if user.get("status") != "suspended":
+            return False, "User is not suspended"
+        
+        # Update user status
+        await db.users.update_one(
+            {"user_id": user_id},
+            {"$set": {
+                "status": "active",
+                "suspended": False,
+                "suspended_at": None,
+                "suspended_by": None,
+                "suspension_reason": None,
+                "activated_at": datetime.now(timezone.utc).isoformat(),
+                "activated_by": activated_by
+            }}
+        )
+        
+        # Get org for audit
+        membership = await db.org_memberships.find_one({"user_id": user_id}, {"_id": 0, "org_id": 1})
+        org_id = membership["org_id"] if membership else None
+        
+        # Audit log
+        if org_id:
+            await audit_service.log(
+                org_id=org_id,
+                user_id=activated_by,
+                action="user.activate",
+                resource_type="user",
+                resource_id=user_id,
+                details={
+                    "ip_address": ip_address,
+                    "actor_type": "tenant_admin",
+                    "target_user": user["email"]
+                }
+            )
+        
+        logger.info(f"User {user_id} ({user['email']}) activated by tenant admin {activated_by}")
+        return True, "User activated successfully"
+    
+    # ==================== Seeding ====================
+    
+    async def seed_initial_data(self) -> Dict:
+        """Seed initial tenant and tenant super admin"""
+        db = get_database()
+        
+        # Check if tenant exists
+        existing_tenant = await db.tenants.find_one({}, {"_id": 0})
+        if existing_tenant:
+            logger.info("Tenant already exists, skipping seed")
+            return {"message": "Tenant already exists", "tenant_id": existing_tenant["tenant_id"]}
+        
+        # Create default tenant
+        tenant = await self.create_tenant(name="ProFlow Tenant", domain=None)
+        
+        # Create tenant super admin
+        admin = await self.create_tenant_user(
+            tenant_id=tenant["tenant_id"],
+            email="mahmoud@mahmoud.com",
+            password="Su@12345",
+            name="Mahmoud - Tenant Super Admin",
+            role="tenant_super_admin"
+        )
+        
+        # Update all existing organizations to belong to this tenant
+        await db.organizations.update_many(
+            {"tenant_id": {"$exists": False}},
+            {"$set": {"tenant_id": tenant["tenant_id"], "status": "active"}}
+        )
+        
+        logger.info(f"Seeded tenant {tenant['tenant_id']} with super admin {admin['user_id']}")
+        return {
+            "message": "Initial tenant and super admin created successfully",
+            "tenant_id": tenant["tenant_id"],
+            "admin_email": "mahmoud@mahmoud.com",
+            "admin_user_id": admin["user_id"]
+        }
+
+
+# Singleton instance
+tenant_service = TenantService()
