@@ -301,6 +301,16 @@ class SeasonalEmployeeService:
             {"_id": 0}
         ).to_list(100)
         
+        # Get assigned_by names
+        assigner_ids = list(set(a["assigned_by"] for a in assignments if a.get("assigned_by")))
+        assigner_map = {}
+        if assigner_ids:
+            assigners = await db.users.find(
+                {"user_id": {"$in": assigner_ids}},
+                {"_id": 0, "user_id": 1, "name": 1}
+            ).to_list(len(assigner_ids))
+            assigner_map = {u["user_id"]: u["name"] for u in assigners}
+        
         # Get days worked and cost for each
         for assignment in assignments:
             attendance_count = await db.seasonal_attendance.count_documents({
@@ -308,6 +318,7 @@ class SeasonalEmployeeService:
             })
             assignment["days_worked"] = attendance_count
             assignment["total_cost"] = round(attendance_count * assignment["day_rate"], 2)
+            assignment["assigned_by_name"] = assigner_map.get(assignment.get("assigned_by"), "Unknown")
         
         return assignments
     
@@ -320,12 +331,23 @@ class SeasonalEmployeeService:
             {"_id": 0}
         ).to_list(100)
         
+        # Get assigned_by names
+        assigner_ids = list(set(a["assigned_by"] for a in assignments if a.get("assigned_by")))
+        assigner_map = {}
+        if assigner_ids:
+            assigners = await db.users.find(
+                {"user_id": {"$in": assigner_ids}},
+                {"_id": 0, "user_id": 1, "name": 1}
+            ).to_list(len(assigner_ids))
+            assigner_map = {u["user_id"]: u["name"] for u in assigners}
+        
         for assignment in assignments:
             attendance_count = await db.seasonal_attendance.count_documents({
                 "assignment_id": assignment["assignment_id"]
             })
             assignment["days_worked"] = attendance_count
             assignment["total_cost"] = round(attendance_count * assignment["day_rate"], 2)
+            assignment["assigned_by_name"] = assigner_map.get(assignment.get("assigned_by"), "Unknown")
         
         return assignments
     
