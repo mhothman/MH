@@ -305,7 +305,7 @@ class BudgetApprovalService:
         db = get_database()
         
         # Get all org members with Finance role
-        finance_members = await db.org_members.find(
+        finance_members = await db.org_memberships.find(
             {"org_id": org_id, "role": "finance"},
             {"_id": 0, "user_id": 1}
         ).to_list(100)
