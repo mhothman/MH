@@ -207,19 +207,10 @@ async def activate_organization(org_id: str, request: Request):
     user = await require_tenant_admin(request)
     
     ip_address = request.client.host if request.client else None
-
-
-
-@router.delete("/users/{user_id}")
-async def delete_user(user_id: str, request: Request):
-    """Permanently delete a user"""
-    tenant_admin = await require_tenant_admin(request)
     
-    ip_address = request.client.host if request.client else None
-    
-    success, message = await tenant_service.delete_user(
-        user_id=user_id,
-        deleted_by=tenant_admin["user_id"],
+    success, message = await tenant_service.activate_organization(
+        org_id=org_id,
+        activated_by=user["user_id"],
         ip_address=ip_address
     )
     
@@ -228,10 +219,17 @@ async def delete_user(user_id: str, request: Request):
     
     return {"message": message}
 
+
+@router.delete("/organizations/{org_id}")
+async def delete_organization(org_id: str, request: Request):
+    """Permanently delete an organization and all its data"""
+    tenant_admin = await require_tenant_admin(request)
     
-    success, message = await tenant_service.activate_organization(
+    ip_address = request.client.host if request.client else None
+    
+    success, message = await tenant_service.delete_organization(
         org_id=org_id,
-        activated_by=user["user_id"],
+        deleted_by=tenant_admin["user_id"],
         ip_address=ip_address
     )
     
