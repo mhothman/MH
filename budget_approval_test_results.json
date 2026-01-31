@@ -1,0 +1,178 @@
+{
+  "summary": {
+    "total_tests": 24,
+    "passed_tests": 24,
+    "failed_tests": 0,
+    "success_rate": 100.0,
+    "timestamp": "2026-01-31T15:52:15.110960"
+  },
+  "test_details": [
+    {
+      "test": "Login Regular User (testuser@proflow.com)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.289267"
+    },
+    {
+      "test": "Login Finance User (ahmed@ahmed.com)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.551981"
+    },
+    {
+      "test": "Get Budget for Valid Test Project",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.591544"
+    },
+    {
+      "test": "Get Current Budget Before Request",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.634906"
+    },
+    {
+      "test": "Submit Budget Increase Request (+5000)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.679771"
+    },
+    {
+      "test": "Verify Request Status is Pending",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.680367"
+    },
+    {
+      "test": "Get Pending Approvals for Org (Finance User)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.718616"
+    },
+    {
+      "test": "Verify New Request Appears in List",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.719165"
+    },
+    {
+      "test": "Approve Budget Request",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.767043"
+    },
+    {
+      "test": "Verify Approval Status",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.767617"
+    },
+    {
+      "test": "Get Budget After Approval",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.814231"
+    },
+    {
+      "test": "Verify Budget Has Value",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.814907"
+    },
+    {
+      "test": "Get Requester Notifications",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.858305"
+    },
+    {
+      "test": "Verify Requester Received Approval Notification",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.858892"
+    },
+    {
+      "test": "Get Current Budget for Threshold Test",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.900085"
+    },
+    {
+      "test": "Submit Threshold Change Request (80% \u2192 90%)",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.947668"
+    },
+    {
+      "test": "Reject Threshold Change Request",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.990282"
+    },
+    {
+      "test": "Verify Rejection Status",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:14.990826"
+    },
+    {
+      "test": "Get Budget After Rejection",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:15.033750"
+    },
+    {
+      "test": "Verify Threshold Remains at Original Value",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:15.034317"
+    },
+    {
+      "test": "Get Requester Notifications After Rejection",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:15.072730"
+    },
+    {
+      "test": "Verify Requester Received Rejection Notification",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:15.073251"
+    },
+    {
+      "test": "Get Finance User Notifications",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:15.110351"
+    },
+    {
+      "test": "Verify Finance User Received Approval Request Notifications",
+      "success": true,
+      "details": "",
+      "timestamp": "2026-01-31T15:52:15.110933"
+    }
+  ],
+  "regular_user": {
+    "user_id": "user_245d0b1118b8",
+    "email": "testuser@proflow.com",
+    "name": "Test Regular User",
+    "picture": null,
+    "role": "team_member",
+    "email_verified": false,
+    "suspended": false,
+    "created_at": "2026-01-31T15:19:34.822576Z"
+  },
+  "finance_user": {
+    "user_id": "user_c8bbe636dee2",
+    "email": "ahmed@ahmed.com",
+    "name": "Ahmed",
+    "picture": null,
+    "role": "team_member",
+    "email_verified": false,
+    "suspended": false,
+    "created_at": "2026-01-20T15:36:39.773807Z"
+  },
+  "org_id": "org_3a0711d3f937",
+  "project_id": "proj_9fdf770351d6",
+  "budget_id": "budget_68a65dc42e3f"
+}
