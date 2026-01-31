@@ -256,7 +256,7 @@ class OrganizationService:
             )
             role_ref = custom_role_id
         else:
-            valid_roles = ["super_admin", "org_admin", "project_manager", "team_member", "viewer"]
+            valid_roles = ["super_admin", "org_admin", "project_manager", "finance", "team_member", "viewer"]
             if role not in valid_roles:
                 return False, "Invalid role"
             
