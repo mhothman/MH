@@ -128,4 +128,17 @@ export const Permission = {
   DOCUMENT_DELETE: "document:delete",
   DOCUMENT_CHANGE_STATUS: "document:change_status",
   DOCUMENT_APPROVE: "document:approve",
+  // Budget permissions
+  BUDGET_VIEW: "budget:view",
+  BUDGET_CREATE: "budget:create",
+  BUDGET_EDIT: "budget:edit",
+  BUDGET_DELETE: "budget:delete",
+  BUDGET_APPROVE: "budget:approve",
+  BUDGET_OVERRIDE: "budget:override",
+  // Expense permissions
+  EXPENSE_VIEW: "expense:view",
+  EXPENSE_CREATE: "expense:create",
+  EXPENSE_EDIT: "expense:edit",
+  EXPENSE_DELETE: "expense:delete",
+  EXPENSE_APPROVE: "expense:approve",
 };
