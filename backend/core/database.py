@@ -45,7 +45,7 @@ class MonitoredCollection:
         try:
             from .db_monitor import record_query
             record_query("find_one", self._name, duration_ms, filter)
-        except:
+        except Exception:
             pass
         return result
     
@@ -60,7 +60,7 @@ class MonitoredCollection:
         try:
             from .db_monitor import record_query
             record_query("count_documents", self._name, duration_ms, filter)
-        except:
+        except Exception:
             pass
         return result
     
@@ -71,7 +71,7 @@ class MonitoredCollection:
         try:
             from .db_monitor import record_query
             record_query("insert_one", self._name, duration_ms)
-        except:
+        except Exception:
             pass
         return result
     
@@ -82,7 +82,7 @@ class MonitoredCollection:
         try:
             from .db_monitor import record_query
             record_query("insert_many", self._name, duration_ms, {"count": len(documents)})
-        except:
+        except Exception:
             pass
         return result
     
@@ -93,7 +93,7 @@ class MonitoredCollection:
         try:
             from .db_monitor import record_query
             record_query("update_one", self._name, duration_ms, filter)
-        except:
+        except Exception:
             pass
         return result
     
@@ -104,7 +104,7 @@ class MonitoredCollection:
         try:
             from .db_monitor import record_query
             record_query("update_many", self._name, duration_ms, filter)
-        except:
+        except Exception:
             pass
         return result
     
@@ -115,7 +115,7 @@ class MonitoredCollection:
         try:
             from .db_monitor import record_query
             record_query("delete_one", self._name, duration_ms, filter)
-        except:
+        except Exception:
             pass
         return result
     
@@ -126,7 +126,7 @@ class MonitoredCollection:
         try:
             from .db_monitor import record_query
             record_query("delete_many", self._name, duration_ms, filter)
-        except:
+        except Exception:
             pass
         return result
     
@@ -141,7 +141,7 @@ class MonitoredCollection:
         try:
             from .db_monitor import record_query
             record_query("find_one_and_update", self._name, duration_ms, filter)
-        except:
+        except Exception:
             pass
         return result
     
@@ -152,7 +152,7 @@ class MonitoredCollection:
         try:
             from .db_monitor import record_query
             record_query("find_one_and_delete", self._name, duration_ms, filter)
-        except:
+        except Exception:
             pass
         return result
     
@@ -183,7 +183,7 @@ class MonitoredCursor:
         try:
             from .db_monitor import record_query
             record_query(f"{self._operation}.to_list", self._collection_name, duration_ms, self._query_filter)
-        except:
+        except Exception:
             pass
         return result
     
