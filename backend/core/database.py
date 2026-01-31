@@ -30,7 +30,7 @@ class MonitoredCollection:
         self._collection = collection
         self._name = collection.name
     
-    async def _track_query(self, operation: str, query_filter: Optional[Dict] = None):
+    async def _track_query(self, query_filter: Optional[Dict] = None):
         """Record query execution time"""
         try:
             from .db_monitor import record_query
