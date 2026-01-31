@@ -210,7 +210,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Finance Role Visibility in Team Settings"
+    []
   stuck_tasks:
     - "Budget Approval Workflow - Finance Role"
   test_all: false
