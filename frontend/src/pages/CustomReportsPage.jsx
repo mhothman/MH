@@ -255,15 +255,6 @@ export default function CustomReportsPage() {
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t">
-              <Button onClick={handlePreview} disabled={loading}>
-                {loading ? <LoadingSpinner size="sm" className="mr-2" /> : null}
-                Generate Report
-              </Button>
-              {showPreview && reportData && (
-                <Button onClick={() => handleExport('csv')} disabled={loading} variant="outline">
-                  <FileDown className="w-4 h-4 mr-2" />
                   Export CSV
                 </Button>
               )}
@@ -271,6 +262,174 @@ export default function CustomReportsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Report Preview */}
+      {showPreview && reportData && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Report Results</CardTitle>
+            <CardDescription>
+              {selectedReport === "time-tracking" && `Total Hours: ${reportData.total_hours || 0}h`}
+              {selectedReport === "budget-summary" && `Total Budget: E£${reportData.summary?.total_budget?.toLocaleString() || 0}`}
+              {selectedReport === "project-progress" && `Projects: ${reportData.summary?.total_projects || 0}`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Time Tracking Report Table */}
+            {selectedReport === "time-tracking" && reportData.grouped_data && (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{groupBy === "project" ? "Project" : groupBy === "user" ? "User" : "Date"}</TableHead>
+                    <TableHead className="text-right">Entries</TableHead>
+                    <TableHead className="text-right">Total Hours</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {reportData.grouped_data.map((row, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="font-medium">
+                        {row.project_name || row.user_name || row.date || "Unknown"}
+                      </TableCell>
+                      <TableCell className="text-right">{row.entry_count || 0}</TableCell>
+                      <TableCell className="text-right font-mono">{row.total_hours?.toFixed(2) || 0}h</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="bg-muted/50 font-semibold">
+                    <TableCell>Total</TableCell>
+                    <TableCell className="text-right">
+                      {reportData.grouped_data.reduce((sum, row) => sum + (row.entry_count || 0), 0)}
+                    </TableCell>
+                    <TableCell className="text-right font-mono">{reportData.total_hours?.toFixed(2) || 0}h</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            )}
+
+            {/* Budget Summary Report Table */}
+            {selectedReport === "budget-summary" && reportData.budgets && (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Project</TableHead>
+                      <TableHead className="text-right">Total Budget</TableHead>
+                      <TableHead className="text-right">Spent</TableHead>
+                      <TableHead className="text-right">Remaining</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Spent %</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {reportData.budgets.map((budget, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell className="font-medium">{budget.project_name || "Unknown"}</TableCell>
+                        <TableCell className="text-right">{budget.currency} {budget.total_budget?.toLocaleString() || 0}</TableCell>
+                        <TableCell className="text-right">{budget.currency} {budget.spent_amount?.toLocaleString() || 0}</TableCell>
+                        <TableCell className="text-right">{budget.currency} {budget.remaining_amount?.toLocaleString() || 0}</TableCell>
+                        <TableCell>
+                          <Badge variant={
+                            budget.status === "exceeded" ? "destructive" :
+                            budget.status === "warning" ? "default" :
+                            "secondary"
+                          }>
+                            {budget.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right font-mono">{budget.spent_percent?.toFixed(1) || 0}%</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                
+                {/* Summary */}
+                <div className="mt-4 p-4 bg-muted rounded-lg grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total Budget</p>
+                    <p className="text-lg font-bold">E£{reportData.summary?.total_budget?.toLocaleString() || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total Spent</p>
+                    <p className="text-lg font-bold">E£{reportData.summary?.total_spent?.toLocaleString() || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">At Risk</p>
+                    <p className="text-lg font-bold text-yellow-600">
+                      {(reportData.summary?.warning_count || 0) + (reportData.summary?.exceeded_count || 0)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total Projects</p>
+                    <p className="text-lg font-bold">{reportData.summary?.total_projects || 0}</p>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Project Progress Report Table */}
+            {selectedReport === "project-progress" && reportData.projects && (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Project</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Total Tasks</TableHead>
+                      <TableHead className="text-right">Completed</TableHead>
+                      <TableHead className="text-right">In Progress</TableHead>
+                      <TableHead className="text-right">To Do</TableHead>
+                      <TableHead className="text-right">Completion %</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {reportData.projects.map((project, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell className="font-medium">{project.name || "Unknown"}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{project.status}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">{project.total_tasks || 0}</TableCell>
+                        <TableCell className="text-right text-green-600">{project.completed_tasks || 0}</TableCell>
+                        <TableCell className="text-right text-yellow-600">{project.in_progress_tasks || 0}</TableCell>
+                        <TableCell className="text-right">{project.todo_tasks || 0}</TableCell>
+                        <TableCell className="text-right font-mono">{project.completion_rate?.toFixed(1) || 0}%</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                
+                {/* Summary */}
+                <div className="mt-4 p-4 bg-muted rounded-lg grid grid-cols-3 gap-4">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Average Completion</p>
+                    <p className="text-lg font-bold">{reportData.summary?.avg_completion_rate?.toFixed(1) || 0}%</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Total Tasks</p>
+                    <p className="text-lg font-bold">{reportData.summary?.total_tasks || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Completed Tasks</p>
+                    <p className="text-lg font-bold text-green-600">{reportData.summary?.total_completed || 0}</p>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Empty State */}
+            {reportData && (
+              (selectedReport === "time-tracking" && (!reportData.grouped_data || reportData.grouped_data.length === 0)) ||
+              (selectedReport === "budget-summary" && (!reportData.budgets || reportData.budgets.length === 0)) ||
+              (selectedReport === "project-progress" && (!reportData.projects || reportData.projects.length === 0))
+            ) && (
+              <div className="text-center py-8 text-muted-foreground">
+                <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p>No data available for the selected filters</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
