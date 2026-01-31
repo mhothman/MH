@@ -384,10 +384,11 @@ class TenantAdminTester:
         
         org_user_token = data.get('access_token')
         
-        # Try to access dashboard (should fail with 403)
+        # Try to access projects endpoint with org_id (should fail with 403)
+        # The middleware checks org_id in query params
         success, data, status = self.make_request(
             'GET',
-            'dashboard',
+            f'projects/?org_id={self.org_id}',
             token=org_user_token,
             expected_status=403
         )
@@ -397,7 +398,7 @@ class TenantAdminTester:
             self.log_test("2.8 Suspended org blocks user access", True)
             return True
         else:
-            self.log_test("2.8 Suspended org blocks access", False, f"Expected 403, got {status}")
+            self.log_test("2.8 Suspended org blocks access", False, f"Expected 403, got {status}. Response: {data}")
             return False
     
     def test_activate_organization(self):
