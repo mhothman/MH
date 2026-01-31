@@ -99,6 +99,18 @@ export const AppLayout = ({ children }) => {
     }
   }, []);
 
+  // Load permissions for current org
+  const loadPermissions = useCallback(async () => {
+    if (!currentOrg?.org_id) return;
+    try {
+      const perms = await getMyPermissions(currentOrg.org_id);
+      setUserPermissions(perms || []);
+    } catch (error) {
+      console.error("Failed to load permissions:", error);
+      setUserPermissions([]);
+    }
+  }, [currentOrg?.org_id]);
+
   // WebSocket connection for real-time notifications
   const connectWebSocket = useCallback(() => {
     if (!token || wsRef.current?.readyState === WebSocket.OPEN) return;
