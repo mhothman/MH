@@ -172,7 +172,8 @@ async def get_organization_detail(org_id: str, request: Request):
         created_at=org.get("created_at") if isinstance(org.get("created_at"), datetime) else datetime.fromisoformat(org["created_at"]) if org.get("created_at") else datetime.now(timezone.utc),
         suspended_at=org.get("suspended_at"),
         suspended_by=org.get("suspended_by"),
-
+        suspension_reason=org.get("suspension_reason")
+    )
 
 
 @router.delete("/organizations/{org_id}")
