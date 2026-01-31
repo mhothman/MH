@@ -151,11 +151,26 @@ class TenantService:
         if not org:
             return None
         
-        # Get owner info
-        owner = await db.users.find_one(
-            {"user_id": org["owner_id"]},
-            {"_id": 0, "name": 1, "email": 1}
-        )
+        # Get owner info - first try by owner_id, then by created_by email
+        owner = None
+        if org.get("owner_id"):
+            owner = await db.users.find_one(
+                {"user_id": org["owner_id"]},
+                {"_id": 0, "name": 1, "email": 1}
+            )
+        
+        # If no owner found, try to find by created_by or first admin
+        if not owner:
+            # Get first org admin or super admin
+            admin_membership = await db.org_memberships.find_one(
+                {"org_id": org_id, "role": {"$in": ["super_admin", "org_admin"]}},
+                {"_id": 0, "user_id": 1}
+            )
+            if admin_membership:
+                owner = await db.users.find_one(
+                    {"user_id": admin_membership["user_id"]},
+                    {"_id": 0, "name": 1, "email": 1}
+                )
         
         org["owner_name"] = owner["name"] if owner else "Unknown"
         org["owner_email"] = owner["email"] if owner else "Unknown"
