@@ -201,6 +201,10 @@ const AppRouter = () => {
           <Route path="/custom-reports" element={<ProtectedRoute><CustomReportsPage /></ProtectedRoute>} />
           <Route path="/api-metrics" element={<ProtectedRoute><APIMetricsPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+          
+          {/* Tenant Admin Routes - Separate authentication */}
+          <Route path="/tenant-admin/login" element={<TenantAdminLoginPage />} />
+          <Route path="/tenant-admin" element={<TenantAdminPage />} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
