@@ -816,9 +816,6 @@ class ReportService:
             "total_hours": sum(u["total_hours"] for u in user_productivity.values())
         }
 
-            }
-        }
-
 
 # Singleton instance
 report_service = ReportService()
