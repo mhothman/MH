@@ -4,12 +4,13 @@ class UserRole:
     SUPER_ADMIN = "super_admin"
     ORG_ADMIN = "org_admin"
     PROJECT_MANAGER = "project_manager"
+    FINANCE = "finance"
     TEAM_MEMBER = "team_member"
     VIEWER = "viewer"
     
     @classmethod
     def all(cls):
-        return [cls.SUPER_ADMIN, cls.ORG_ADMIN, cls.PROJECT_MANAGER, cls.TEAM_MEMBER, cls.VIEWER]
+        return [cls.SUPER_ADMIN, cls.ORG_ADMIN, cls.PROJECT_MANAGER, cls.FINANCE, cls.TEAM_MEMBER, cls.VIEWER]
     
     @classmethod
     def admin_roles(cls):
