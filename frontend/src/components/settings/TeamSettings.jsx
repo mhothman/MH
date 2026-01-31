@@ -360,6 +360,7 @@ export function TeamSettings({
                 <SelectContent>
                   <SelectItem value="org_admin">Admin</SelectItem>
                   <SelectItem value="project_manager">Project Manager</SelectItem>
+                  <SelectItem value="finance">Finance</SelectItem>
                   <SelectItem value="team_member">Team Member</SelectItem>
                   <SelectItem value="viewer">Viewer</SelectItem>
                 </SelectContent>
