@@ -92,13 +92,17 @@ class MonitoredCollection:
         self._collection = collection
         self._name = collection.name
 
-    async def find_one(self, filter: Dict | None = None, **kwargs):
+    async def find_one(self, filter: Dict | None = None, projection: Dict | None = None, **kwargs):
         start = time.perf_counter()
+        if projection is not None:
+            kwargs['projection'] = projection
         result = await self._collection.find_one(filter, **kwargs)
         _record("find_one", self._name, (time.perf_counter() - start) * 1000, filter)
         return result
 
-    def find(self, filter: Dict | None = None, **kwargs):
+    def find(self, filter: Dict | None = None, projection: Dict | None = None, **kwargs):
+        if projection is not None:
+            kwargs['projection'] = projection
         return MonitoredCursor(
             self._collection.find(filter or {}, **kwargs),
             self._name,
