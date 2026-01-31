@@ -72,13 +72,24 @@ async def create_task(data: TaskCreate, request: Request):
     if not has_permission(membership["role"], Permission.TASK_CREATE):
         raise HTTPException(status_code=403, detail="Permission denied: cannot create tasks")
     
+    # Check budget hard stop
+    from services.budget_service import budget_service
+    budget_check = await budget_service.check_budget_lock(data.project_id)
+    if budget_check["is_locked"]:
+        # Check if user has override permission
+        if not has_permission(membership["role"], Permission.BUDGET_OVERRIDE):
+            raise HTTPException(
+                status_code=403, 
+                detail=f"Budget exceeded. Cannot create new tasks. {budget_check['message']}"
+            )
+    
     task = await task_service.create_task(
         user_id=user["user_id"],
         user_name=user["name"],
         project_id=data.project_id,
         org_id=project["org_id"],
         title=data.title,
-        description=data.description,
+description=data.description,
         status=data.status,
         priority=data.priority,
         due_date=data.due_date,
