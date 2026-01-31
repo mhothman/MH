@@ -209,12 +209,13 @@ class BudgetApprovalService:
         )
         
         # Notify requester
-        await notification_service.create_notification(
+        await notification_service.create(
             user_id=approval["requested_by"],
+            type="budget_change",
             title="Budget Change Rejected",
             message=f"Your budget change request for {approval['project_name']} has been rejected by {reviewer_name}. Reason: {notes or 'No reason provided'}",
-            type="budget_change",
-            data={"approval_id": approval_id, "budget_id": approval["budget_id"]}
+            link=f"/projects/{approval['project_id']}",
+            metadata={"approval_id": approval_id, "budget_id": approval["budget_id"]}
         )
         
         # Log audit
