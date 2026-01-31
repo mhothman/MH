@@ -196,6 +196,8 @@ const AppRouter = () => {
           <Route path="/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><NotificationCenterPage /></ProtectedRoute>} />
           <Route path="/budget-approvals" element={<ProtectedRoute><BudgetApprovalsPage /></ProtectedRoute>} />
+          <Route path="/custom-reports" element={<ProtectedRoute><CustomReportsPage /></ProtectedRoute>} />
+          <Route path="/api-metrics" element={<ProtectedRoute><APIMetricsPage /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
           {/* Fallback */}
