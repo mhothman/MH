@@ -730,13 +730,26 @@ class ReportService:
         # Identify bottleneck projects (>50% tasks delayed)
         project_delays = {}
         for task in tasks:
-            pid = task["project_id"]
-            if pid not in project_delays:
-                project_delays[pid] = {"total": 0, "delayed": 0}
-            project_delays[pid]["total"] += 1
-            due_date = datetime.fromisoformat(task["due_date"].replace("Z", "+00:00"))
-            if task.get("status") != "done" and due_date < now:
-                project_delays[pid]["delayed"] += 1
+            try:
+                pid = task["project_id"]
+                if pid not in project_delays:
+                    project_delays[pid] = {"total": 0, "delayed": 0}
+                project_delays[pid]["total"] += 1
+                
+                due_date_str = task["due_date"]
+                if isinstance(due_date_str, str):
+                    due_date = datetime.fromisoformat(due_date_str.replace("Z", "+00:00"))
+                else:
+                    due_date = due_date_str
+                
+                if due_date.tzinfo is None:
+                    due_date = due_date.replace(tzinfo=timezone.utc)
+                
+                if task.get("status") != "done" and due_date < now:
+                    project_delays[pid]["delayed"] += 1
+            except Exception as e:
+                logger.warning(f"Error processing task for bottleneck: {e}")
+                continue
         
         bottleneck_count = sum(1 for p in project_delays.values() if p["total"] > 0 and (p["delayed"] / p["total"]) > 0.5)
         
