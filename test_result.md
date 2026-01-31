@@ -214,14 +214,14 @@ frontend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 6
+  test_sequence: 7
   run_ui: true
 
 test_plan:
   current_focus:
     []
   stuck_tasks:
-    - "Budget Approval Workflow - Finance Role"
+    []
   test_all: false
   test_priority: "high_first"
 
