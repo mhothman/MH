@@ -185,6 +185,7 @@ export function TeamSettings({
       super_admin: "destructive",
       org_admin: "default",
       project_manager: "secondary",
+      finance: "default",
       team_member: "outline",
       viewer: "secondary",
     };
@@ -192,6 +193,7 @@ export function TeamSettings({
       super_admin: "Super Admin",
       org_admin: "Admin",
       project_manager: "PM",
+      finance: "Finance",
       team_member: "Member",
       viewer: "Viewer",
     };
