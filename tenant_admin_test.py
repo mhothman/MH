@@ -603,7 +603,7 @@ class TenantAdminTester:
             'POST',
             'auth/login',
             data={
-                "email": "test@proflow.com",
+                "email": "testuser@proflow.com",
                 "password": "Test123!"
             }
         )
