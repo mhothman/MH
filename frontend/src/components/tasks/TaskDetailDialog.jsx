@@ -2,6 +2,7 @@
  * TaskDetailDialog - Task detail view with editable fields
  */
 import { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -789,6 +790,49 @@ export function TaskDetailDialog({
     </Dialog>
   );
 
+
+// PropTypes validation
+TaskDetailDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onOpenChange: PropTypes.func.isRequired,
+  task: PropTypes.shape({
+    task_id: PropTypes.string,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string,
+    status: PropTypes.string,
+    priority: PropTypes.string,
+    due_date: PropTypes.string,
+    start_date: PropTypes.string,
+    assignee_ids: PropTypes.arrayOf(PropTypes.string),
+    dependencies: PropTypes.arrayOf(PropTypes.string),
+    estimated_hours: PropTypes.number,
+    actual_hours: PropTypes.number,
+    recurrence: PropTypes.string,
+    approval_status: PropTypes.string,
+  }),
+  taskStatuses: PropTypes.arrayOf(PropTypes.object),
+  members: PropTypes.arrayOf(PropTypes.object),
+  comments: PropTypes.arrayOf(PropTypes.object),
+  activity: PropTypes.arrayOf(PropTypes.object),
+  checklist: PropTypes.arrayOf(PropTypes.object),
+  currentUserId: PropTypes.string,
+  canEdit: PropTypes.bool,
+  canDelete: PropTypes.bool,
+  canComment: PropTypes.bool,
+  canApprove: PropTypes.bool,
+  canForceApprove: PropTypes.bool,
+  onUpdateTask: PropTypes.func,
+  onDeleteTask: PropTypes.func,
+  onGenerateRecurring: PropTypes.func,
+  onAddComment: PropTypes.func,
+  onAddChecklistItem: PropTypes.func,
+  onToggleChecklistItem: PropTypes.func,
+  onDeleteChecklistItem: PropTypes.func,
+  onUpdateAssignees: PropTypes.func,
+  onUpdateDependencies: PropTypes.func,
+  onRefreshTask: PropTypes.func,
+  getTaskById: PropTypes.func,
+};
 
 // Default props to prevent undefined errors
 TaskDetailDialog.defaultProps = {
