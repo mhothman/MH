@@ -118,6 +118,18 @@ api_router.include_router(seasonal_employee_router.router, prefix="/seasonal-emp
 
 app.include_router(api_router)
 
+# Root API endpoint for health checks and probes
+@app.get("/api")
+@app.post("/api")
+async def api_root():
+    """Root API endpoint for Kubernetes health checks"""
+    return {
+        "status": "ok",
+        "service": "ProFlow API",
+        "version": "2.0.0",
+        "message": "API is running"
+    }
+
 # Health check endpoints - both /health and /api/health for compatibility
 @app.get("/health")
 async def root_health_check():
