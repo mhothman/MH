@@ -128,11 +128,6 @@ export function TaskDetailDialog({
   const [editedTitle, setEditedTitle] = useState("");
   const [newComment, setNewComment] = useState("");
   const [newChecklistItem, setNewChecklistItem] = useState("");
-
-  // Safety check for task prop
-  if (!task) {
-    return null;
-  }
   const [approvalSummary, setApprovalSummary] = useState(null);
   const [loadingApproval, setLoadingApproval] = useState(false);
   const titleInputRef = useRef(null);
