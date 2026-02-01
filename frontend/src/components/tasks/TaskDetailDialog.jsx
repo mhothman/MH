@@ -793,4 +793,20 @@ export function TaskDetailDialog({
       </DialogContent>
     </Dialog>
   );
+
+
+// Default props to prevent undefined errors
+TaskDetailDialog.defaultProps = {
+  taskStatuses: [],
+  members: [],
+  comments: [],
+  activity: [],
+  checklist: [],
+  canEdit: true,
+  canDelete: true,
+  canComment: true,
+  canApprove: false,
+  canForceApprove: false,
+};
+
 }
