@@ -261,160 +261,133 @@ async def get_paginated_time_entries(
 
 
 # ==================== DASHBOARD ROUTES ====================
+
 @router.get("/org/{org_id}/dashboard")
 async def get_executive_dashboard(org_id: str, request: Request):
+    """
+    Get executive dashboard data.
+    
+    Includes:
+    - Project portfolio overview
+    - Resource utilization
+    - Task completion metrics
+    - Productivity trends
+    """
     db = get_database()
     user = await require_auth(request)
-
+    
     membership = await get_user_org_membership(user["user_id"], org_id)
-    _assert_report_permission(membership)
-
-    projects = await fetch_projects(db, org_id)
-    tasks = await fetch_tasks(db, projects)
-
-    project_stats = calculate_project_stats(projects)
-    task_stats = calculate_task_stats(tasks)
-
-    workload = await calculate_member_workload(db, org_id, tasks)
-
-    return {
-        "projects": project_stats,
-        "tasks": task_stats,
-        "workload": workload,
-    }
-def _assert_report_permission(membership):
     if not membership:
         raise HTTPException(status_code=403, detail="Access denied")
-
+    
+    # Check REPORT_VIEW permission
     if not has_permission(membership["role"], Permission.REPORT_VIEW):
-        raise HTTPException(
-            status_code=403,
-            detail="Permission denied: cannot view reports",
-        )
-async def fetch_projects(db, org_id: str):
-    return await db.projects.find(
-        {"org_id": org_id},
-        {"_id": 0}
-    ).to_list(500)
-
-
-async def fetch_tasks(db, projects):
-    project_ids = [p["project_id"] for p in projects]
-    if not project_ids:
-        return []
-
-    return await db.tasks.find(
-        {"project_id": {"$in": project_ids}},
-        {"_id": 0}
-    ).to_list(2000)
-def calculate_project_stats(projects):
-    stats = {
+        raise HTTPException(status_code=403, detail="Permission denied: cannot view reports")
+    
+    # Project overview (limit to 500 for performance)
+    projects = await db.projects.find({"org_id": org_id}, {"_id": 0}).to_list(500)
+    
+    project_stats = {
         "total": len(projects),
         "by_status": {},
+        "on_track": 0,
+        "at_risk": 0,
+        "delayed": 0
     }
-
+    
     for project in projects:
         status = project.get("status", "planned")
-        stats["by_status"][status] = stats["by_status"].get(status, 0) + 1
-
-    return stats
-def calculate_task_stats(tasks):
-    now = datetime.now(timezone.utc)
-
-    stats = {
+        project_stats["by_status"][status] = project_stats["by_status"].get(status, 0) + 1
+    
+    # Task metrics (limit to 2000 for performance)
+    tasks = await db.tasks.find({
+        "project_id": {"$in": [p["project_id"] for p in projects]}
+    }, {"_id": 0}).to_list(2000)
+    
+    task_stats = {
         "total": len(tasks),
         "completed": 0,
         "in_progress": 0,
         "overdue": 0,
         "by_priority": {},
-        "by_status": {},
-        "completion_rate": 0,
+        "by_status": {}
     }
-
+    
+    now = datetime.now(timezone.utc)
     for task in tasks:
         status = task.get("status", "todo")
         priority = task.get("priority", "medium")
-
-        stats["by_status"][status] = stats["by_status"].get(status, 0) + 1
-        stats["by_priority"][priority] = stats["by_priority"].get(priority, 0) + 1
-
+        
+        task_stats["by_status"][status] = task_stats["by_status"].get(status, 0) + 1
+        task_stats["by_priority"][priority] = task_stats["by_priority"].get(priority, 0) + 1
+        
         if status == "done":
-            stats["completed"] += 1
+            task_stats["completed"] += 1
         elif status == "in_progress":
-            stats["in_progress"] += 1
-
-        if is_task_overdue(task, now):
-            stats["overdue"] += 1
-
-    if stats["total"] > 0:
-        stats["completion_rate"] = round(
-            stats["completed"] / stats["total"] * 100, 1
-        )
-
-    return stats
-def is_task_overdue(task, now):
-    if task.get("status") == "done":
+            task_stats["in_progress"] += 1
+        
+        # Check overdue
+        if task.get("due_date"):
+            try:
+                due_str = task["due_date"]
+                if isinstance(due_str, str):
+                    due_date = datetime.fromisoformat(due_str.replace("Z", "+00:00"))
+                    # Make sure both are timezone-aware
+                    if due_date.tzinfo is None:
+                        due_date = due_date.replace(tzinfo=timezone.utc)
+                    if due_date < now and status != "done":
+                        task_stats["overdue"] += 1
+            except Exception:
+                pass  # Skip malformed dates
+    
+    # Calculate completion rate
+    if task_stats["total"] > 0:
+        task_stats["completion_rate"] = round(task_stats["completed"] / task_stats["total"] * 100, 1)
+    else:
+        task_stats["completion_rate"] = 0
+    
+    # Helper function to safely check if task is overdue
+    def is_overdue(task):
+        if task.get("status") == "done":
+            return False
+        if not task.get("due_date"):
+            return False
+        try:
+            due_str = task["due_date"]
+            if isinstance(due_str, str):
+                due_date = datetime.fromisoformat(due_str.replace("Z", "+00:00"))
+                if due_date.tzinfo is None:
+                    due_date = due_date.replace(tzinfo=timezone.utc)
+                return due_date < now
+        except Exception:
+            return False
         return False
-
-    due_date = parse_due_date(task.get("due_date"))
-    return bool(due_date and due_date < now)
-
-
-def parse_due_date(due_str):
-    if not isinstance(due_str, str):
-        return None
-
-    try:
-        dt = datetime.fromisoformat(due_str.replace("Z", "+00:00"))
-        return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
-    except Exception:
-        return None
-async def calculate_member_workload(db, org_id, tasks):
-    members = await db.org_memberships.find(
-        {"org_id": org_id},
-        {"_id": 0}
-    ).to_list(None)
-
+    
+    # Member workload - OPTIMIZED: Batch fetch all users at once
+    members = await db.org_memberships.find({"org_id": org_id}, {"_id": 0}).to_list(None)
     user_ids = [m["user_id"] for m in members]
-    if not user_ids:
-        return []
-
-    users = await db.users.find(
-        {"user_id": {"$in": user_ids}},
-        {"_id": 0, "user_id": 1, "name": 1}
+    
+    # Batch fetch all users in one query (instead of N queries)
+    users_list = await db.users.find(
+        {"user_id": {"$in": user_ids}}, 
+        {"_id": 0, "user_id": 1, "name": 1, "email": 1}
     ).to_list(None)
-
-    users_map = {u["user_id"]: u for u in users}
-    now = datetime.now(timezone.utc)
-
+    users_map = {u["user_id"]: u for u in users_list}
+    
     workload = []
-
     for user_id in user_ids:
-        user_tasks = [
-            t for t in tasks if user_id in t.get("assignee_ids", [])
-        ]
-
-        user = users_map.get(user_id)
-        if not user:
-            continue
-
-        workload.append({
-            "user_id": user_id,
-            "name": user.get("name", "Unknown"),
-            "total_tasks": len(user_tasks),
-            "completed": count_by_status(user_tasks, "done"),
-            "in_progress": count_by_status(user_tasks, "in_progress"),
-            "overdue": sum(
-                1 for t in user_tasks if is_task_overdue(t, now)
-            ),
-        })
-
-    return workload
-
-
-def count_by_status(tasks, status):
-    return sum(1 for t in tasks if t.get("status") == status)
-
+        user_tasks = [t for t in tasks if user_id in t.get("assignee_ids", [])]
+        user_doc = users_map.get(user_id)
+        
+        if user_doc:
+            workload.append({
+                "user_id": user_id,
+                "name": user_doc.get("name", "Unknown"),
+                "total_tasks": len(user_tasks),
+                "completed": len([t for t in user_tasks if t.get("status") == "done"]),
+                "in_progress": len([t for t in user_tasks if t.get("status") == "in_progress"]),
+                "overdue": len([t for t in user_tasks if is_overdue(t)])
+            })
     
     # Sort by total tasks
     workload.sort(key=lambda x: x["total_tasks"], reverse=True)
