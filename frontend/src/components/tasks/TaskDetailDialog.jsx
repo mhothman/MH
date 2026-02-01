@@ -307,7 +307,6 @@ export function TaskDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {!task ? null : (
       <DialogContent 
         className="max-w-2xl max-h-[90vh] overflow-y-auto"
         onEscapeKeyDown={(e) => {
@@ -787,7 +786,6 @@ export function TaskDetailDialog({
           </TabsContent>
         </Tabs>
       </DialogContent>
-      )}
     </Dialog>
   );
 
