@@ -789,6 +789,7 @@ export function TaskDetailDialog({
       </DialogContent>
     </Dialog>
   );
+}
 
 
 // PropTypes validation
