@@ -850,5 +850,3 @@ TaskDetailDialog.defaultProps = {
   canApprove: false,
   canForceApprove: false,
 };
-
-}
