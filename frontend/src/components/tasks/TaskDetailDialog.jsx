@@ -787,6 +787,7 @@ export function TaskDetailDialog({
           </TabsContent>
         </Tabs>
       </DialogContent>
+      )}
     </Dialog>
   );
 
